@@ -9,6 +9,28 @@ state.
 Check [`config/project.env`](config/project.env) before assuming anything:
 `PROJECT_PHASE` is the authoritative answer to "what is this repository?".
 
+## Greenfield2 project overlay
+
+Greenfield2 is now an instantiated App 1 repository in **Discovery**. The
+App-Factory / ECC-on-Arena engineering system below is preserved; product work
+must live in the project-owned discovery documents and follow the lifecycle
+rather than modifying the foundation to fit a desired outcome.
+
+After this engineering entry point, read:
+
+1. [`README.md`](README.md) — repository identity and current lifecycle;
+2. [`FOUNDATIONS.md`](FOUNDATIONS.md) — App 1 discovery constitution, evidence
+   hierarchy and protected-foundation boundary;
+3. [`config/project.env`](config/project.env) — authoritative lifecycle state;
+4. [`docs/MEMORY.md`](docs/MEMORY.md) — append-only verified project memory;
+5. the issue being worked and only the product/domain/architecture documents
+   relevant to that issue.
+
+For ordinary product work, do **not** modify `.ecc/**`, foundation provenance,
+verification/self-test scripts, CI gate wiring, or the branch-governance
+payload. A change to those is a separate foundation/ECC task with its own issue
+and review.
+
 ## What this repository contains
 
 `.ecc/` is a repository-owned **ECC-on-Arena adapter**: engineering rules,
