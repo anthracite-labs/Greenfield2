@@ -105,3 +105,35 @@ before relying on **Use this template**, and separately decide whether to apply
 the portable Main ruleset to App-Factory itself. Generated repositories must
 still receive their own live governance because GitHub administrative settings
 are not inherited.
+
+## 2026-09-12 — Greenfield2 entered App 1 Discovery
+
+**Context:** Issue #1, branch `discovery/issue-1-instantiate-app1`, draft PR #2.
+**Did:** Initialized `PROJECT_NAME=Greenfield2`, `PROJECT_SLUG=greenfield2` and
+`PROJECT_PHASE=discovery` while preserving `ALLOW_APP_STACK=0`; created the
+project-level `FOUNDATIONS.md`; reframed README/product/domain documents for
+fresh Discovery; added only an additive project overlay to `AGENTS.md`; and
+recorded `docs/discovery/FOUNDATION_AUDIT.md`. No `.ecc/**`, verification script,
+CI workflow, foundation version, provenance or branch-ruleset payload was
+modified.
+**Verified:** GitHub Actions run `34707025554` on PR #2 completed successfully.
+`Foundation gate` ran `bash scripts/verify.sh` and reported `PASS — 17 passed,
+0 failed, 1 skipped`; the skip was AgentShield scanning zero Claude-config files,
+as expected/advisory. The same job ran `bash scripts/selftest.sh` and reported
+`SELFTEST: PASS — 128 cases behaved as asserted`. The separate `Independent
+checks` job also completed successfully. Read-only GitHub inspection reported
+`main` as `protected=false` and the repository rulesets endpoint returned `[]`.
+A separate attempt to clone the branch in the local tool container failed before
+verification because that environment could not resolve `github.com`; CI is the
+actual execution evidence for this session.
+**Learned:** The existing ECC/App-Factory technical foundation can be preserved
+without bending it around App 1: project identity, lifecycle and Discovery truth
+fit cleanly in the intended project-owned surfaces. The committed ruleset is
+policy intent only; live GitHub governance is currently absent and remains an
+explicit human-admin follow-up.
+**Next:** Complete independent review of PR #2 and do not self-merge. An
+authorized maintainer should apply/verify the live `main` ruleset separately.
+After the Discovery initialization is accepted, resume the fresh product
+Discovery grilling using VibeFlow as target/baseplate, Replit as reference
+evidence and the OSS ADOPT/HARVEST/REJECT matrix as advisory input. Keep the
+application stack locked until the normal Architecture/ADR transition.
