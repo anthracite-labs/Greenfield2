@@ -5,7 +5,7 @@
 **Issue:** [#8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)
 **Contract:** [PROVIDER_CAPABILITY_CONTRACT.md](PROVIDER_CAPABILITY_CONTRACT.md) v1.1 (accepted), [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) four shapes, fifteen revisions.
 **Product gates:** [PRODUCT.md](../PRODUCT.md) minimum V1 loop (7 items) and Integration Legitimacy (supported external-client path + legitimate entitlement).
-**Verification date:** 2026-09-13 (UTC) — all first-party URLs fetched via platform fetch/search on this date; re-verified 2026-09-13 (UTC) for corrective pass (Replit MCP 8-tool surface, Copilot Business/Enterprise restriction, Cursor remote-reference, Jules lifecycle). Sandbox egress to vendor doc hosts fails TLS handshake (`curl https://jules.google/ → SSL_ERROR_SYSCALL`), so no provider API was called. Documentation-level validation only, no live MCP tools/list introspection exercised.
+**Verification date:** 2026-09-13 (UTC) — all first-party URLs fetched via platform fetch/search on this date; re-verified 2026-09-13 (UTC) for first corrective pass, re-verified 2026-09-13 (UTC) for second corrective pass (Replit MCP 3-tool surface). Sandbox egress to vendor doc hosts fails TLS handshake (`curl https://jules.google/ → SSL_ERROR_SYSCALL`), so no provider API was called. Documentation-level validation only, no live MCP tools/list introspection exercised. **Discrepancy recorded:** retrieval channel via platform fetch on 2026-09-13 returned 8-tool table (create_app_from_prompt, search_apps, resolve_app_by_name, list_apps, ask_question, update_app_using_prompt, publish_app, get_publish_status) while independent direct inspection of https://docs.replit.com/platforms/mcp-server on same date reports page text “The server exposes three public tools” with Tools nav containing only create_app_from_prompt, update_app_using_prompt, ask_question. Freshest directly inspected first-party page (3 tools) is treated as authoritative for this correction; stale 8-tool extract is recorded as conflicting evidence, not asserted.
 **Decision rule:** Do not silently choose a winner. This document produces shortlist and recommendation; product owner and Greenfield2 review explicitly decide.
 
 ---
@@ -17,7 +17,7 @@
 | **Google Jules** | **PASS** — all 7 V1 items via REST API: Session lifecycle, Activities (plan/progress/messages), inline-patch ChangeSet, opt-in plan approval, PR result, list/continue/reconnect | **PASS** — official REST API v1alpha, user-generated API key, provider-direct billing via Google AI Pro/Ultra, GitHub source connection via Jules GitHub App | **Finalist — best documented semantic match to V1 UI** |
 | **Cursor Cloud Agents** | **PASS, with one diff-surface caveat to validate in spike** — durable Agent + Runs, rich SSE tool stream, branch/PR result, follow-ups, resume via Last-Event-ID; change inspection is remote-reference (branch) not inline-patch; approval none exposed (required-if-exposed) | **PASS** — official Cloud Agents API v1 public beta, Basic + Bearer auth, user API key + service-account keys + sub-tokens, paid Cursor plan required, usage-priced | **Finalist — best provider-hosted workspace/runtime** |
 | **GitHub Copilot cloud agent** | **PARTIAL** — start/list/get tasks, PR result, remote-reference diffs via PR APIs, waiting_for_user; lacks rich transcript/tool/diff/approval surface in task API itself | **PASS with narrowed plan class** — official Agent Tasks REST API public preview, user-to-server tokens (PAT, OAuth, GitHub App user token, no installation tokens), **Business/Enterprise required for Start task API path** per REST reference (conflicts with how-to "all paid plans" for overall feature), explicit legitimacy | **Watch / not first-provider choice yet** |
-| **Replit MCP** | **PARTIAL** — App-shaped (no work item), create/update/publish, live public URL result, but no files/diffs, no progress/activity, no approvals exposed | **PASS** — official MCP server over Streamable HTTP, OAuth 2.1 + PKCE with protected-resource discovery, Free/Core/Pro/Enterprise accounts | **Watch / fails PRODUCT.md item 4 (changed files/diffs)** |
+| **Replit MCP** | **PARTIAL/FAIL — App-shaped (no work item), 3-tool surface create/update/ask, replUrl result, no files/diffs/patch/remote-reference, no structured progress/activity event stream (but ask_question can return build-status/progress via discussion mode), no approvals** | **PASS** — official MCP server https://replit-mcp.com/server/mcp Streamable HTTP, OAuth protected-resource discovery, OAuth 2.1 + PKCE per auth section, Free/Core/Pro/Enterprise accounts | **Watch / fails PRODUCT.md item 4 (changed files/diffs) — Gate 1 PARTIAL/FAIL** |
 | **OpenAI Codex App Server + hosted Codex** | **TECHNICALLY STRONG for local execution** — threads/turns/items, streaming, diffs, approvals, file changes; hosted third-party path not documented | **UNVERIFIED for third-party use of OpenAI-hosted runtime** — App Server runs on your own infra; running it in Greenfield2-owned compute violates MVP non-goal of no Greenfield2 runtime | **Validation/partner track** |
 
 No additional candidate was found that materially passes both gates better than the two finalists on current first-party evidence.
@@ -348,102 +348,111 @@ Overall does not yet present workspace-level development loop with observable pr
 
 ---
 
-## 4. Replit MCP — GATE 1 PARTIAL / GATE 2 PASS
+## 4. Replit MCP — GATE 1 PARTIAL/FAIL / GATE 2 PASS (3-tool surface)
 
 ### Supported auth path
+- **First-party source inspected:** https://docs.replit.com/platforms/mcp-server — fetched 2026-09-13, re-fetched 2026-09-13 for second corrective pass. Current page states: “The server exposes three public tools.” Tools navigation contains only three entries.
+- **Exact public MCP tools now documented (3):**
+  - `create_app_from_prompt`
+  - `update_app_using_prompt`
+  - `ask_question`
+- **Removed previous eight-tool claims:** `publish_app`, `get_publish_status`, `list_apps`, `search_apps`, `resolve_app_by_name` are no longer documented as part of same supported public MCP server surface per current first-party page. They were present in stale retrieval channel extract that returned 8-tool table on 2026-09-13 earlier fetch; that stale extract is now recorded as conflicting evidence and not asserted. No current first-party Replit source clearly documents those five operations as part of same public MCP server surface — do not infer from Replit native UI, historical MCP docs, Admin API, product capabilities, or secondary connector catalogs.
 - Official Replit MCP Server, remote server URL `https://replit-mcp.com/server/mcp`.
 - Transport: Streamable HTTP (MCP).
-- Auth: OAuth using protected-resource discovery (OAuth 2.1 + PKCE). Client reads Replit's protected-resource metadata, prompts sign-in to Replit. Do not create custom OAuth server; Replit provides OAuth metadata.
+- Auth: OAuth using protected-resource discovery. Authentication section explicitly mentions OAuth 2.1 with PKCE. Client reads Replit's protected-resource metadata, prompts sign-in to Replit. Do not create custom OAuth server; Replit provides OAuth metadata.
 - Supports ChatGPT, Claude, Slack native integrations plus any MCP client supporting Streamable HTTP + OAuth.
-- Access scoped to apps user can edit, including shared.
+- Access scoped to apps user can edit, including shared — per page statement “You can create apps or work with apps that you can edit, including apps shared with you.”
+- Entitlement: Replit Free/Core/Pro/Enterprise accounts per docs.
 
 ### Entitlement/billing relationship
 - User's Replit account: Free, Core, Pro, Enterprise. User contracts and pays Replit directly.
 - Greenfield2 does not resell.
 - Billing relationship provider-direct.
+- No entitlement endpoint; L2 unknown until attempt per contract.
 
 ### Agent/session lifecycle surface
-- Primary unit: **App** — long-lived provider-owned resource, not a task/session/run. **Product vs MCP distinction preserved:** Replit product has Apps, Repls, Deployments, but MCP surface exposes only App-shaped operations; we do not infer additional lifecycle from Replit UI.
-- **Re-verification 2026-09-13 (UTC) — official first-party docs https://docs.replit.com/platforms/mcp-server still list 8 tools (same as 2026-09-13 initial fetch). Independent review claim of 3 tools (create_app_from_prompt/update_app_using_prompt/ask_question only) not confirmed in official docs; therefore 8-tool surface retained. Secondary source https://www.promptarmor.com/connectors/replit shows 4 tools for Claude connector (filtered view), which is secondary and not authoritative over official docs. No live MCP tools/list introspection exercised — doc-level validation only, marked pre-stable/unversioned.**
-- Tools (8 total per official docs):
-  - create_app_from_prompt: required appDescription + app_stack (choice list), optional userSpecifiedAppName, userQuotes, attachmentSummary, sourceReplId (private copy).
-  - update_app_using_prompt: required replId + changeDescription, optional userQuotes, attachmentSummary.
-  - publish_app: replId.
-  - get_publish_status: replId — check publish status + public URL.
-  - list_apps: optional query, limit (default 25 max 50) — list apps you can edit, ordered recent activity.
-  - search_apps: optional query, url, updatedAfter, updatedBefore, limit 1-50.
-  - resolve_app_by_name: name exact title.
-  - ask_question: replId + question — ask Agent about app without changing.
-- No state enum exposed via MCP. Work async, progress observable only indirectly: "A create, update, or publish request is still running — Wait before retrying." — implies polling, not typed lifecycle states.
-- **Lifecycle/publishing/output/continuity/discovery re-evaluated:** Lifecycle is App persistence, not run states; publishing is explicit via publish_app + get_publish_status (live-artifact result); meaningful output is published URL; continuity is same replId via update_app_using_prompt; discovery is list_apps/search_apps/resolve_app_by_name (enumerable App concept) via MCP tools/list mechanism, structurally different from REST capability endpoint. No file/diff/activity/approval surface exposed — still fails PRODUCT.md item 4 per contract §5.5.1 (none + live-artifact alone does not satisfy changed files/diffs).
+- Primary unit: **App** — long-lived provider-owned resource, not a task/session/run. **Product vs MCP distinction preserved:** Replit product has Apps, Repls, Deployments, but MCP surface exposes only App-shaped operations; we do not infer additional lifecycle from Replit UI, Admin API, or historical docs.
+- **Current 3-tool surface per first-party page:**
+  - `create_app_from_prompt`: required `appDescription`, `app_stack` (choice list `react_website`, `mobile_app`, `design`, `slides`, `animation`, `data_visualization`, `3d_game`, `document`, `spreadsheet`), optional `userSpecifiedAppName`, `userQuotes`, `attachmentSummary`, `sourceReplId` (private copy). Response includes at least `phase`, `replId`, `turnId`, `replUrl` per current docs. Replit Agent then builds asynchronously.
+  - `update_app_using_prompt`: required `replId`, `changeDescription`, optional `userQuotes`, `attachmentSummary`. Used for continuing iteration against same app.
+  - `ask_question`: required `replId`, `question`. Discussion mode, does not modify app. Current docs say can be used to check build status, ask about tech stack, relay questions, report build progress.
+- No state enum exposed via MCP (no SessionState-like vocabulary). Work is asynchronous. Previous claim “A create, update, or publish request is still running — Wait before retrying” was from 8-tool page troubleshooting section; with 3-tool surface, async nature still documented via `phase` + `replUrl` tracking, but `get_publish_status` polling no longer documented — do not claim it.
+- **Discrepancy note:** Earlier fetch channel returned 8-tool table including `publish_app`/`get_publish_status`/`list_apps`/`search_apps`/`resolve_app_by_name`; current directly inspected page shows 3 tools. Freshest directly inspected first-party page (3 tools) is authoritative; stale 8-tool extract recorded as conflicting evidence.
 
 ### Provider-hosted execution/workspace behavior
-- Replit Agent builds app in Replit cloud-hosted project (code, data, assets), secure isolated environment, auto-save, version control, collaboration, publishing to cloud with single click.
+- Replit Agent builds app in Replit cloud-hosted project (code, data, assets), secure isolated environment, auto-save, version control, collaboration, publishing to cloud.
 - Project Editor tools: AI-powered, collaboration, publishing.
 - Zero-setup, pre-configured environments.
+- Execution is task-oriented App build, not generic always-on workspace shell with terminal/browser VM like Cursor.
 
 ### New/continue workflow support
-- New: create_app_from_prompt with appDescription + app_stack required. app_stack must be one of fixed provider list: react_website, mobile_app, design, slides, animation, data_visualization, 3d_game, document, spreadsheet — provider-owned taxonomy.
-- Continue: update_app_using_prompt mutates existing app (replId). search/list/resolve to find existing. Cross-client continuation using same replId.
-- No work item to reopen; App is long-lived.
+- New: `create_app_from_prompt` with `appDescription` + `app_stack` required. Returns `phase`, `replId`, `turnId`, `replUrl`. `phase` indicates build stage, `replUrl` is native Replit URL to track progress.
+- Continue: `update_app_using_prompt` using same `replId`. Documentation explicitly describes continuing iteration against same app and handing off between MCP clients using same `replId` — cross-client continuation supported.
+- No work item to reopen; App is long-lived. Do not invent run/session abstraction — App is the unit.
 
 ### Observable activity/messages/tool events
-- None exposed in current MCP surface. Closest is get_publish_status reports publish state + public URL, not agent activity.
-- ask_question asks agent about app without changing, but no structured activity stream.
+- **No structured progress/activity event stream is exposed** via supported MCP surface (no Activity stream like Jules, no SSE tool_call stream like Cursor).
+- **But supported Agent interaction can return build-status/progress information via `ask_question`:** Current documentation says `ask_question` can be used to check build status, ask about tech stack, relay questions, report build progress. This is discussion mode returning provider text, not typed events. Distinguish: no structured telemetry, but build-status/progress obtainable via discussion.
+- No tool execution observability like `tool_call` with args/result.
 
 ### Files/diffs
-- None exposed. No file, diff, or patch surface in MCP tools.
-- Published app is observable output, not diff.
+- **None exposed.** Current 3-tool documentation still appears to expose no changed-file, diff, patch, or equivalent remote change-inspection surface (no file list, no diff content, no branch reference, no PR reference).
+- Published app is observable output via `replUrl`, not diff. No file/diff/activity surface.
+- Contract mapping: `changes.inspect` → `none`. Per PROVIDER_CAPABILITY_CONTRACT.md §5.5.1, `none` is disqualifier for first provider, `live-artifact` alone does not satisfy item 4. PRODUCT.md minimum V1 item 4 says “inspect meaningful provider-exposed changed files and/or diffs” with no where-exposed qualifier, so fails.
+- Re-evaluated against accepted contract §5.5.1: still fails.
 
 ### Approvals
-- None exposed.
+- None exposed in current 3-tool MCP surface.
 
 ### Meaningful output
-- Published App and public URL — live-artifact fulfilment, categorically different from pull request.
-- replId + replUrl (native Replit URL for reviewing progress).
-- This satisfies result.observe (item 6) as meaningful provider result (preview/published app), but does not satisfy item 4.
+- **Precise accounting from current first-party page:** `create_app_from_prompt` returns `replUrl` (native Replit URL) and `replId` + `phase` + `turnId`. Docs say Replit Agent builds asynchronously, returns `replUrl`, directs builder to that URL to track progress. Product description level says Replit Agent transforms prompts into live/published apps.
+- **Do not claim dedicated public `publish_app` / `get_publish_status` MCP capability** if those tools are no longer documented — they are removed from claims.
+- For V1 item 6 (meaningful provider output/result such as preview, build, deployment, PR, or equivalent): `replUrl` qualifies as live-artifact result (published app URL / preview URL) obtainable from create response and trackable via that URL. This satisfies item 6 via `result.observe` as live-artifact, but uncertainty remains: current page does not explicitly state whether `replUrl` is already live/published or requires separate publish step via UI; docs describe Agent building asynchronously and transforming into live/published apps at product level, but no `publish_app` tool documented. State uncertainty explicitly: we credit live-artifact via `replUrl`, but cannot assert dedicated publish/status MCP tools exist.
+- `replId` + `replUrl` native Replit URL for reviewing progress.
 
 ### Reconnect/resume/background behavior
-- update_app_using_prompt mutates existing app, continuation via same replId.
-- Native Replit URL for reviewing progress.
-- No work item to reopen; App persists.
-- Async building, polling get_publish_status.
+- `update_app_using_prompt` mutates existing app, continuation via same `replId`.
+- Documented same-`replId` continuation and cross-client handoff behavior per current docs (hand off between MCP clients using same `replId`).
+- Native `replUrl` for reviewing progress / tracking build.
+- No work item to reopen; App persists. Background building in provider, observable via `replUrl` + `ask_question` for status, not via `get_publish_status` polling (removed).
 
 ### Known policy/terms constraints
-- MCP tool set unversioned; schemas do not carry REST-style version guarantees.
-- No public REST endpoint that builds app; internal GraphQL undocumented/unsupported for third-party use. Admin API is Enterprise account-governance surface read-mostly, not build lifecycle (per scalekit analysis).
-- Requires OAuth, not API key.
-- app_stack required from fixed list — provider-owned taxonomy with no equivalent in other shapes.
-- List default 25 max 50.
+- **Maturity:** MCP tool set unversioned; schemas do not carry REST-style version guarantees. Pre-stable — re-verify before implementation. Current surface reduced from 8 to 3 tools, indicating drift.
+- No public REST endpoint that builds app; internal GraphQL undocumented/unsupported for third-party use. Admin API is Enterprise account-governance surface read-mostly, not build lifecycle — do not infer MCP tools from Admin API.
+- Requires OAuth (OAuth 2.1 + PKCE), not API key.
+- `app_stack` required from fixed provider list — provider-owned taxonomy with no equivalent in other shapes.
+- No file/diff/activity/approval surface.
+- **Discrepancy recorded:** Earlier platform fetch returned 8-tool table; current direct inspection shows 3 tools with statement “The server exposes three public tools.” Freshest page treated as authoritative.
 
 ### First-party evidence URLs and verification date
-- https://docs.replit.com/platforms/mcp-server — tools table (8 tools: create_app_from_prompt, search_apps, resolve_app_by_name, list_apps, ask_question, update_app_using_prompt, publish_app, get_publish_status), URL https://replit-mcp.com/server/mcp, transport Streamable HTTP, auth OAuth protected-resource discovery — fetched 2026-09-13, re-verified 2026-09-13 (UTC) still 8 tools
-- https://docs.replit.com/updates/2026/08/14/changelog — Use Replit through MCP native — fetched via search 2026-09-13
-- https://www.scalekit.com/blog/replit-mcp-vs-api — MCP vs Admin API decision framework, confirms 8 tools — secondary, accessed 2026-09-13, re-verified 2026-09-13 states 8 tools
-- https://www.promptarmor.com/connectors/replit — shows 4 tools for Claude connector (secondary, filtered view, not authoritative) — accessed 2026-09-13
-- Verification date: 2026-09-13 (initial), re-verified 2026-09-13 (corrective pass) — doc-level only, no live tools/list exercised, marked unversioned/pre-stable
+- https://docs.replit.com/platforms/mcp-server — **current official page directly inspected 2026-09-13 second corrective pass** — states “The server exposes three public tools”, Tools nav only three tools, lists `create_app_from_prompt` (required appDescription, app_stack choice list react_website/mobile_app/design/slides/animation/data_visualization/3d_game/document/spreadsheet, optional userSpecifiedAppName/userQuotes/attachmentSummary/sourceReplId, response includes phase/replId/turnId/replUrl, Agent builds async), `update_app_using_prompt` (replId/changeDescription, same replId continuation and cross-client handoff), `ask_question` (replId/question, discussion mode, can check build status/tech stack/relay questions/report build progress, no structured progress stream). Also documents URL https://replit-mcp.com/server/mcp, Transport Streamable HTTP, Auth OAuth using protected-resource discovery, OAuth 2.1 with PKCE in auth section, Free/Core/Pro/Enterprise accounts, replUrl tracking, async build. No publish_app/get_publish_status/list_apps/search_apps/resolve_app_by_name in current page.
+- https://docs.replit.com/platforms/mcp-server — **stale retrieval channel extract 2026-09-13 earlier fetch** returned 8-tool table (create_app_from_prompt, search_apps, resolve_app_by_name, list_apps, ask_question, update_app_using_prompt, publish_app, get_publish_status) — recorded as conflicting evidence, not asserted as current, prefer freshest page.
+- https://docs.replit.com/updates/2026/08/14/changelog — Use Replit through MCP native — fetched via search 2026-09-13 (secondary corroboration of MCP existence, not tool list)
+- https://www.scalekit.com/blog/replit-mcp-vs-api — MCP vs Admin API decision framework, previously stated 8 tools (secondary, stale relative to current first-party page) — accessed 2026-09-13, now considered stale secondary vs current first-party 3-tool page.
+- https://www.promptarmor.com/connectors/replit — shows 4 tools for Claude connector (secondary filtered view, not authoritative) — accessed 2026-09-13
+- Verification date: 2026-09-13 initial, re-verified 2026-09-13 first corrective (8-tool per stale fetch), re-verified 2026-09-13 second corrective (3-tool per freshest directly inspected first-party page) — doc-level only, no live tools/list exercised, marked unversioned/pre-stable, discrepancy explicitly recorded.
 
 ### Gate 1 verdict
-**PARTIAL — fails PRODUCT.md item 4 and thus Gate 1 per contract §5.5.1**:
-1. start/continue where exposed: create_app_from_prompt, update_app_using_prompt, list/search — yes, but App-shaped not task-shaped.
-2. interact with Agent: via prompts in create/update + ask_question — partial.
-3. observe progress/plan/tool activity where exposed: none exposed in external surface — no.
-4. inspect changed files/diffs: none exposed — fails unqualified required item 4. Per contract §5.5.1, fulfilment none does not qualify for MVP loop; live-artifact alone does not satisfy item 4 (needs inline-patch or remote-reference). So Gate 1 fails.
+**PARTIAL/FAIL — fails PRODUCT.md item 4 and thus Gate 1 per contract §5.5.1, with revised analysis from 3-tool surface**:
+1. start new work: `create_app_from_prompt` returns phase/replId/turnId/replUrl, Agent builds async — yes, but App-shaped not task-shaped.
+2. interact with Agent: via prompts in create/update + `ask_question` discussion mode — yes, partial, discussion does not modify app, can relay build-status/progress.
+3. observe progress/plan/tool activity where exposed: **no structured progress/activity event stream** exposed; but **build-status/progress information obtainable via `ask_question`** discussion mode per docs — partial, not typed stream like Jules/Cursor. Distinguish no structured stream vs discussion-mode status.
+4. inspect changed files/diffs: **none exposed** — no file/diff/patch/remote-reference surface in current 3-tool docs — fails unqualified required item 4. Per contract §5.5.1, fulfilment `none` does not qualify for MVP loop; live-artifact alone does not satisfy item 4. So Gate 1 fails.
 5. respond to approval where exposed: none exposed — required-if-exposed, not disqualifier alone, but combined with 3,4 fails richness.
-6. meaningful result: published app URL live-artifact — yes, satisfies item 6 via result.observe.
-7. reconnect/continue where supported: update same replId — yes.
+6. meaningful result: `replUrl` live-artifact (published app URL / native URL to track progress) — yes, satisfies item 6 via result.observe, but uncertainty about publish vs live state since no publish_app tool documented; credit live-artifact via replUrl with uncertainty stated.
+7. reconnect/continue where supported: same `replId` via `update_app_using_prompt`, documented cross-client handoff — yes.
 
-Overall not enough supported capability for workspace-level dev loop as defined.
+Overall not enough supported capability for workspace-level dev loop as defined — fails item 4, no structured progress stream, no file/diff surface.
 
 ### Gate 2 verdict
-**PASS** — Official MCP server, supported external-client path (Streamable HTTP + OAuth 2.1 + PKCE), legitimate entitlement via user's Replit account (Free/Core/Pro/Enterprise), per-user scope.
+**PASS** — Official MCP server https://replit-mcp.com/server/mcp, supported external-client path Streamable HTTP + OAuth using protected-resource discovery + OAuth 2.1 with PKCE, legitimate entitlement via user's Replit account Free/Core/Pro/Enterprise, per-user scope. Integration path legitimacy preserved even with reduced 3-tool surface.
 
 ### Major architectural coupling/risks
-- App-centric contract with no work item at all; no progress/approval concept.
-- No change inspection surface; would require private interfaces which are prohibited.
-- Fixed app_stack taxonomy.
-- Unversioned tools.
-- No file/diff/activity surface.
+- App-centric contract with no work item at all; no structured progress/approval/file/diff concept in current 3-tool surface — only discussion-mode status via ask_question.
+- No change inspection surface; would require private interfaces which are prohibited — fails PRODUCT.md item 4.
+- Fixed `app_stack` taxonomy provider-owned.
+- Unversioned tools, surface drift from 8 to 3 tools observed 2026-09-13 — pre-stable, re-verify.
+- No discovery/listing/publish/status tools in current surface — continuity only via same replId, not via list/search/resolve.
 
 ---
 
@@ -575,8 +584,8 @@ Technically would pass Gate 1 if self-hosted, but MVP requires provider-hosted e
 
 ### Why not others now
 
-- **GitHub Copilot cloud agent**: Excellent legitimacy (user-to-server tokens, explicit enablement query, firewall, security scanning) but task API alone lacks rich transcript/tool/diff/approval observation. Would require combining SDK + task API + PR APIs as one contract, which is false completeness per anti-leakage. Watch for richer task API surface; currently Gate 1 PARTIAL.
-- **Replit MCP**: Excellent legitimacy (OAuth 2.1 + PKCE, Streamable HTTP, official server) but external surface exposes only App create/update/publish + public URL, no files/diffs/activity/approvals. Fails PRODUCT.md item 4 (changed files/diffs) which has no "where exposed" qualifier. Per contract §5.5.1, none + live-artifact alone does not satisfy item 4. Watch if Replit adds file/diff/activity tools.
+- **GitHub Copilot cloud agent**: Excellent legitimacy (user-to-server tokens, explicit enablement query, firewall, security scanning) but task API alone lacks rich transcript/tool/diff/approval observation. Would require combining SDK + task API + PR APIs as one contract, which is false completeness per anti-leakage. Watch for richer task API surface; currently Gate 1 PARTIAL. Entitlement for API path is Business/Enterprise only per REST reference https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 vs all paid plans for overall feature per how-to https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api — conflict documented, Gate2 PASS narrowed.
+- **Replit MCP**: Excellent legitimacy (OAuth 2.1 + PKCE per auth section explicitly OAuth 2.1 with PKCE, Streamable HTTP, official server https://replit-mcp.com/server/mcp) but **current first-party page https://docs.replit.com/platforms/mcp-server explicitly states “The server exposes three public tools” (create_app_from_prompt returns phase/replId/turnId/replUrl async, update_app_using_prompt same replId continuation + cross-client handoff, ask_question discussion mode can check build status/tech stack/relay questions/report progress)** — no files/diffs/patch/remote-reference, no structured progress/activity event stream (only discussion-mode status), no approvals, no publish_app/get_publish_status/list_apps/search_apps/resolve_app_by_name (previous 8-tool claims removed as stale, discrepancy recorded). Fails PRODUCT.md item 4 (changed files/diffs) which has no “where exposed” qualifier. Per contract §5.5.1, none + live-artifact replUrl alone does not satisfy item 4. Watch if Replit adds file/diff/activity tools.
 - **OpenAI Codex**: Technically excellent for local execution, but no documented public third-party path to use OpenAI-hosted runtime while keeping OpenAI as execution provider. Self-hosting App Server would violate MVP non-goal (no Greenfield2-owned runtime). Keep on validation/partner track; re-evaluate if OpenAI publishes hosted third-party task API.
 
 ### Next step
@@ -596,19 +605,19 @@ Per PROVIDER_CAPABILITY_CONTRACT.md §5 table (PRODUCT.md qualifiers precise):
 
 | PRODUCT.md minimum V1 item | Qualifier | Contract capability | Jules | Cursor | Copilot | Replit | Codex (self-hosted) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1. start new / continue existing | where exposed | work.start, work.continue | Session create + sendMessage | Agent create + Run create follow-up | Task start + PR comment new task | create_app + update_app | thread/start + resume |
-| 2. interact with Agent | none (required) | agent.interact | sendMessage + agentMessaged | SSE assistant + Run follow-up | PR comments | prompt in create/update + ask_question | turn/start + steer |
-| 3. observe progress/plan/tool activity | where exposed | progress.observe | Activities planGenerated/progressUpdated | SSE tool_call + interaction_update | task state only | none | rich items |
-| 4. inspect changed files/diffs | none (required) | changes.inspect | inline-patch ChangeSet.unidiffPatch | remote-reference branch | remote-reference PR | none (fails) | inline changes |
-| 5. respond to approval | where exposed | approval.discover/respond | requirePlanApproval + approvePlan | none (required-if-exposed) | post-hoc PR review | none | command/file approvals |
-| 6. meaningful result | none (required) | result.observe | SessionOutput.pullRequest | git.branches + prUrl + result text | PR artifact | published URL live-artifact | workspace result |
-| 7. reconnect/continue where supported | where supported | continuity.reconnect | list/get/sendMessage | durable Agent + new Run + Last-Event-ID resume | list tasks + PR comment | update same replId | resume + compact |
+| 1. start new / continue existing | where exposed | work.start, work.continue | Session create + sendMessage | Agent create + Run create follow-up | Task start + PR comment new task | create_app (returns phase/replId/turnId/replUrl) + update_app same replId | thread/start + resume |
+| 2. interact with Agent | none (required) | agent.interact | sendMessage + agentMessaged | SSE assistant + Run follow-up | PR comments | prompt in create/update + ask_question (discussion mode, can check build status/tech stack/relay questions/report progress) | turn/start + steer |
+| 3. observe progress/plan/tool activity | where exposed | progress.observe | Activities planGenerated/progressUpdated | SSE tool_call + interaction_update | task state only | no structured stream, but build-status via ask_question discussion mode | rich items |
+| 4. inspect changed files/diffs | none (required) | changes.inspect | inline-patch ChangeSet.unidiffPatch | remote-reference branch (branch != diffs) | remote-reference PR | none (fails) — no file/diff/patch/remote-reference in current 3-tool surface | inline changes |
+| 5. respond to approval | where exposed | approval.discover/respond | requirePlanApproval + approvePlan | none (required-if-exposed) | post-hoc PR review | none (required-if-exposed) | command/file approvals |
+| 6. meaningful result | none (required) | result.observe | SessionOutput.pullRequest | git.branches + prUrl + result text | PR artifact | replUrl live-artifact (uncertainty about publish vs live, no publish_app tool) | workspace result |
+| 7. reconnect/continue where supported | where supported | continuity.reconnect | list/get/sendMessage | durable Agent + new Run + Last-Event-ID resume | list tasks + PR comment | same replId via update_app, cross-client handoff documented | resume + compact |
 
 Fulfilment kinds per §5.5.1:
 - Jules: inline-patch — satisfies item 4 yes.
-- Cursor: remote-reference — satisfies item 4 yes per contract, but needs spike.
+- Cursor: remote-reference — satisfies item 4 yes per contract, but needs spike, branch != diffs.
 - Copilot: remote-reference — satisfies item 4 yes, but other items partial.
-- Replit: live-artifact for result, none for changes — fails item 4 per §5.5.1 (live-artifact alone does not satisfy item 4; none is disqualifier for first provider).
+- Replit: **current 3-tool surface** — live-artifact via replUrl for result (with uncertainty, no publish_app/get_publish_status), none for changes — fails item 4 per §5.5.1 (live-artifact alone does not satisfy item 4; none is disqualifier for first provider). Previous 8-tool claims (publish_app/get_publish_status/list_apps/search_apps/resolve_app_by_name) removed as no longer documented in freshest first-party page https://docs.replit.com/platforms/mcp-server stating “The server exposes three public tools.”
 - Codex: inline-patch equivalent — satisfies item 4, but hosting fails Gate 2.
 
 ---
@@ -616,9 +625,9 @@ Fulfilment kinds per §5.5.1:
 ## Evidence collection method
 
 - Channel preflight per research.md: repo first (PRODUCT.md, ARCHITECTURE.md, contract v1.1, validation record), then gh api (issue #8 body), then web search/fetch for primary provider docs. Sandbox curl to vendor hosts fails TLS (SSL_ERROR_SYSCALL) — reported as unreachable, not retried.
-- Sources are primary provider documentation (jules.google, cursor.com, docs.github.com, docs.replit.com, developers.openai.com, openai.com) accessed 2026-09-13, re-verified 2026-09-13 for corrective pass (Replit 8-tool surface https://docs.replit.com/platforms/mcp-server, Copilot Business/Enterprise restriction https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 vs all-paid-plans wording https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api, Cursor git.branches[] remote-reference https://cursor.com/docs/cloud-agent/api/endpoints, Jules lifecycle/activities/types/usage-limits https://jules.google/docs/api/reference/ etc.).
-- No provider API called, no private scraping, no reverse-engineered first-party session endpoints. No live MCP tools/list introspection — doc-level validation only, marked pre-stable alpha/beta/preview/unversioned where applicable. Ambiguity recorded where first-party sources conflict (Copilot entitlement).
-- Secondary sources (scalekit, harnessrouter, promptarmor, blog posts) used only to corroborate absence or filtered views and labelled where used, separated from first-party.
+- Sources are primary provider documentation (jules.google, cursor.com, docs.github.com, docs.replit.com, developers.openai.com, openai.com) accessed 2026-09-13, re-verified 2026-09-13 for first corrective pass, re-verified 2026-09-13 for second corrective pass (Replit 3-tool surface https://docs.replit.com/platforms/mcp-server stating “The server exposes three public tools” — create_app_from_prompt/update_app_using_prompt/ask_question, with stale 8-tool extract recorded as conflicting evidence; Copilot Business/Enterprise restriction https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 vs all-paid-plans wording https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api; Cursor git.branches[] remote-reference https://cursor.com/docs/cloud-agent/api/endpoints; Jules lifecycle/activities/types/usage-limits https://jules.google/docs/api/reference/ etc.).
+- No provider API called, no private scraping, no reverse-engineered first-party session endpoints. No live MCP tools/list introspection — doc-level validation only, marked pre-stable alpha/beta/preview/unversioned where applicable. Ambiguity recorded where first-party sources conflict (Copilot entitlement all-paid vs Business/Enterprise, Replit stale 8-tool vs current 3-tool).
+- Secondary sources (scalekit, harnessrouter, promptarmor, blog posts) used only to corroborate absence or filtered views and labelled where used, separated from first-party, not used to infer MCP surface.
 
 ---
 
