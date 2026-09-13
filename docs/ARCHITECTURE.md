@@ -16,7 +16,9 @@ Architecture must determine **how** to realize the reviewed product definition i
 
 The work now permitted includes:
 
-- evaluating candidate first providers against the accepted product-fit and integration-legitimacy gates;
+- defining the provider-neutral capability boundary before selecting the first provider;
+- validating that boundary against multiple materially different provider shapes;
+- evaluating candidate first providers against the accepted product-fit and integration-legitimacy gates only after that boundary is validated;
 - defining Greenfield2/application boundaries while preserving provider-authoritative development state;
 - defining provider-adapter responsibilities and capability-discovery contracts;
 - evaluating authentication/authorization integration patterns without assuming authentication implies entitlement;
@@ -43,15 +45,38 @@ Architecture must preserve these reviewed product boundaries unless a separate p
 - Mobile is the priority product surface, but the product is not mobile-only.
 - `ALLOW_APP_STACK=0` remains active until an accepted application-stack ADR and the separate implementation transition satisfy the lifecycle guard.
 
+## Provider-contract-first sequencing
+
+[ADR-0005](decisions/0005-provider-contract-before-provider-selection.md) establishes a hard Architecture ordering rule:
+
+1. define Greenfield2's provider capability contract;
+2. validate it against at least three materially different provider shapes;
+3. revise it where validation reveals vendor leakage, false universality or lowest-common-denominator loss;
+4. only then select the first implementation provider;
+5. implement provider-specific translation behind that accepted boundary.
+
+The capability contract is **not** a universal Greenfield2 resource model. It describes what Greenfield2 can discover, ask, observe or invoke through a provider adapter while leaving the underlying resource identity, terminology, lifecycle and state provider-native.
+
+The contract must keep three questions separate:
+
+- **Provider capability:** does this provider expose the capability through a supported external-client surface?
+- **Connected-account entitlement:** is this particular user's provider account legitimately authorized/entitled to use it?
+- **Greenfield2 capability support:** does Greenfield2 have a validated UI/surface for the exposed capability?
+
+Transport is also adapter-local. REST, MCP, SDK, SSE, WebSocket, webhook or polling must not become core Greenfield2 semantics merely because one provider uses them.
+
+Before first-provider selection, validation must include at least three materially different provider shapes. The current research set includes Jules, Cursor and Replit, with GitHub Copilot as a useful fourth stress case. Those names are validation evidence only; none is selected or privileged by this rule.
+
 ## Application Architecture decisions — currently open
 
 No item in this section is selected merely by being listed.
 
 | Area | Architecture question | Decision vehicle |
 | :-- | :-- | :-- |
-| First provider | Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? | Provider-evaluation issue; ADR if the choice creates durable coupling |
+| Provider capability contract | What provider-neutral capability/operation boundary lets Greenfield2 expose provider truth without inventing universal provider resources? | Issue #9 + ADR-0005; validate against multiple provider shapes before provider selection |
+| First provider | After contract validation, which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? | Separate provider-selection decision; ADR if the choice creates durable coupling |
 | Client/application stack | Which approach best supports phone-first and larger-screen surfaces while respecting the repository constraints? | Application-stack ADR |
-| Provider boundary | What adapter/capability contract keeps provider-native semantics authoritative without duplicating provider state? | Architecture issue / ADR if durable |
+| Provider boundary | What adapter responsibilities keep provider-native semantics authoritative without duplicating provider state? | Architecture issue / ADR if durable |
 | Identity/auth | How does Greenfield2 Account connect to provider authorization while keeping entitlement distinct? | Security/Architecture review + ADR if durable |
 | Persistence/cache | What minimum Greenfield2-owned persistence is actually required for account, connection, preferences and opaque references? | Data Architecture ADR if durable |
 | Reconnect/events | Which provider-supported event, polling or refresh patterns are valid for the selected provider? | Provider-specific Architecture decision |
@@ -160,8 +185,9 @@ The transition to implementation is rejected unless `ALLOW_APP_STACK=1`, `PROJEC
 5. **Adapt, do not import.** Upstream ECC is large; this adapter carries 10 workflows, 4 rules, and 3 personas, and never claims to be native ECC.
 6. **State, not surgery.** Lifecycle changes are config diffs reviewed in a PR, never edits to the script that enforces them.
 7. **Reviewed product first.** Architecture starts from `docs/PRODUCT.md` and `docs/DOMAIN.md`; technical convenience does not silently redefine product authority or scope.
-8. **Alternatives before commitment.** Research real options and costs before accepting a durable Architecture choice.
-9. **Implementation stays locked.** Architecture may decide; application-stack artifacts wait for the accepted stack ADR and implementation transition.
+8. **Provider contract before provider selection.** No first vendor may define Greenfield2's resource model, lifecycle or transport assumptions; validate the capability boundary across materially different providers first.
+9. **Alternatives before commitment.** Research real options and costs before accepting a durable Architecture choice.
+10. **Implementation stays locked.** Architecture may decide; application-stack artifacts wait for the accepted stack ADR and implementation transition.
 
 ## Execution environment
 
@@ -174,5 +200,6 @@ See [ARENA.md](ARENA.md) for the concise, generic harness reference and the re-v
 - [ROADMAP.md](ROADMAP.md) — lifecycle stages
 - [SECURITY.md](SECURITY.md) — repository security floor; application threat model evolves with Architecture
 - [decisions/](decisions/README.md) — decision record index
+- [decisions/0005-provider-contract-before-provider-selection.md](decisions/0005-provider-contract-before-provider-selection.md) — provider-contract-first Architecture decision
 - [FACTORY.md](FACTORY.md) — instantiation and repository-admin reference
 - [../.ecc/UPSTREAM.md](../.ecc/UPSTREAM.md) — ECC provenance and omissions

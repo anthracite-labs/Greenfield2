@@ -14,9 +14,8 @@ re-litigating it. Procedure:
 
 ## Index
 
-The records below are the **foundation** decisions, inherited from App-Factory.
-They explain how this repository is engineered, not what it builds. A generated
-repository appends its own product and stack decisions after them.
+The records below begin with the **foundation** decisions inherited from
+App-Factory, followed by Greenfield2 project Architecture decisions.
 
 | ADR | Title | Status | Date |
 | :-- | :-- | :-- | :-- |
@@ -24,6 +23,7 @@ repository appends its own product and stack decisions after them.
 | [0002](0002-verification-gate.md) | `scripts/verify.sh` + GitHub Actions as the sole quality gate | accepted | 2026-09-06 |
 | [0003](0003-flat-skill-files.md) | Flat per-task workflow files instead of upstream `SKILL.md` directories | accepted | 2026-09-06 |
 | [0004](0004-lifecycle-config-stack-guard.md) | Project lifecycle config replaces the hard-coded no-app-stack guard | accepted | 2026-09-06 |
+| [0005](0005-provider-contract-before-provider-selection.md) | Define the provider capability contract before selecting the first provider | accepted | 2026-09-13 |
 
 The ADR that records a project's **implementation stack** is referenced by
 `STACK_DECISION_ADR` in [`../../config/project.env`](../../config/project.env),

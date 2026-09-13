@@ -50,10 +50,17 @@ transition into Architecture.
 
 Architecture is the active Greenfield2 lifecycle stage.
 
-- [ ] Open Architecture issues for the decisions that actually need to be made.
-- [ ] Evaluate the first provider against the accepted product-fit and
-      integration-legitimacy gates; do not inherit a provider choice from
-      Discovery references.
+- [x] Open Architecture issues for the decisions that actually need to be made.
+- [ ] Define Greenfield2's provider-neutral capability contract before selecting
+      the first provider; this is required by
+      [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md).
+- [ ] Validate that contract against at least three materially different provider
+      shapes and revise it where the comparison exposes vendor leakage, false
+      universality or lowest-common-denominator loss.
+- [ ] Only after provider-contract validation, evaluate and select the first
+      provider against the accepted product-fit and integration-legitimacy gates;
+      do not inherit a provider choice from Discovery references or Architecture
+      research candidates.
 - [ ] Evaluate real implementation alternatives; record durable choices as ADRs
       in [decisions/](decisions/README.md) with costs and rejected alternatives
       stated.
@@ -64,6 +71,11 @@ Architecture is the active Greenfield2 lifecycle stage.
       must run.
 - [ ] Select and accept the application stack through an ADR only after the
       relevant alternatives have been researched and reviewed.
+
+The provider contract is a capability/interface boundary, not a universal
+Greenfield2 resource model. Provider-native resources, names, lifecycle and state
+remain provider-authoritative; capability availability, connected-account
+entitlement and Greenfield2 UI support remain separate concerns.
 
 The no-stack guard remains active throughout Architecture. `ALLOW_APP_STACK=0`
 and an empty `STACK_DECISION_ADR` mean Architecture may research and decide but
