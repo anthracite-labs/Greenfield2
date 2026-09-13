@@ -242,7 +242,7 @@ No additional candidate was found that materially passes both gates better than 
 
 ---
 
-## 3. GitHub Copilot cloud agent — GATE 1 PARTIAL / GATE 2 PASS
+## 3. GitHub Copilot cloud agent — GATE 1 PASS / GATE 2 PASS (with 3-way entitlement conflict preserved)
 
 ### Supported auth path
 - Agent Tasks REST API: `POST /agents/repos/{owner}/{repo}/tasks`, `GET /agents/repos/{owner}/{repo}/tasks`, `GET /agents/tasks` (across repos), `GET /agents/repos/{owner}/{repo}/tasks/{id}`.
