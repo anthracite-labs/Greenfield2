@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Architecture phase active; no application Architecture decision has been accepted yet.  
+**Status:** Architecture phase active; provider-contract-first sequencing and the provider capability-contract structure are accepted, while first-provider selection and the application stack remain open.  
 **Lifecycle:** `PROJECT_PHASE=architecture`, with `ALLOW_APP_STACK=0` still enforcing the no-stack guard.
 
 This file serves two purposes during Architecture:

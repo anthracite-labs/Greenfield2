@@ -1,13 +1,15 @@
 # Security Policy
 
-This repository is an engineering foundation. It contains no application, no
-user data, and no deployed service. Its real attack surface is **an AI agent
-that reads and executes repository content**, plus the CI that runs on every
-pull request. This policy covers exactly that, and travels unchanged into every
-repository generated from it.
+Greenfield2 is an instantiated application repository built on the App-Factory
+engineering foundation. It currently contains no application source, no user
+data, and no deployed service. Its real attack surface is therefore **an AI
+agent that reads and executes repository content**, plus the CI that runs on
+every pull request. The inherited foundation policy covers that surface now;
+project-specific application threats extend it as Architecture and
+implementation make those threats real.
 
-A repository that later gains an application stack must extend this policy with
-the threats of that stack; it must not replace what is here.
+When this repository gains an application stack, extend this policy with the
+threats of that stack; do not replace what is here.
 
 ## Threat model
 

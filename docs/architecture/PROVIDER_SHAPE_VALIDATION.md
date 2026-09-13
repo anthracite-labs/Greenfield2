@@ -408,7 +408,7 @@ see §4c.)
 
 ## 4c. Consistency corrections from the second review pass
 
-Four internal inconsistencies remained after F11–F15. None changed the
+Five internal inconsistencies remained after F11–F15. None changed the
 architecture; each was a place where one section had been updated and another
 had not.
 

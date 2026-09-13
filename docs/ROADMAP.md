@@ -33,9 +33,11 @@ The default state of a newly generated application repository.
 
 - [x] Run `scripts/init-project.sh`, then `scripts/verify.sh` and
       `scripts/selftest.sh` — both must pass before any other work.
-- [ ] Complete the repository-admin checklist in [FACTORY.md](FACTORY.md);
-      template copies files, not GitHub configuration. This remains a governance
-      follow-up and is not silently treated as complete.
+- [ ] Complete the repository-admin checklist in [FACTORY.md](FACTORY.md).
+      Template copies files, not GitHub configuration. The default-branch
+      ruleset/protection portion is now complete and verified (Issue #12 / PR
+      #15); the broader checklist remains open until its other administrative
+      items are explicitly reverified.
 - [x] Open a product-discovery issue and answer the questions in
       [PRODUCT.md](PRODUCT.md).
 - [x] Record the domain vocabulary in [DOMAIN.md](DOMAIN.md) as it emerges.
@@ -43,7 +45,7 @@ The default state of a newly generated application repository.
 The no-stack guard is active. Application-stack artifacts are rejected.
 
 Exit condition: [PRODUCT.md](PRODUCT.md) contains a reviewed product definition.
-This condition was satisfied by PR #5; Issue #6 performs the separate lifecycle
+This condition was satisfied by PR #5; Issue #6 completed the separate lifecycle
 transition into Architecture.
 
 ## Stage: architecture (`PROJECT_PHASE=architecture`)
