@@ -43,8 +43,8 @@ of it applies to this repository.
 ## Operating conventions inherited from the foundation
 
 These are the conventions every session is expected to follow. They are
-recorded here because they are the durable context a new session needs before it
-has read anything else.
+recorded here because they are the durable context a new session needs before
+it has read anything else.
 
 | Convention | Where it is enforced |
 | :-- | :-- |
