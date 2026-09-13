@@ -43,8 +43,8 @@ of it applies to this repository.
 ## Operating conventions inherited from the foundation
 
 These are the conventions every session is expected to follow. They are
-recorded here because they are the durable context a new session needs before
-it has read anything else.
+recorded here because they are the durable context a new session needs before it
+has read anything else.
 
 | Convention | Where it is enforced |
 | :-- | :-- |
@@ -137,3 +137,11 @@ After the Discovery initialization is accepted, resume the fresh product
 Discovery grilling using VibeFlow as target/baseplate, Replit as reference
 evidence and the OSS ADOPT/HARVEST/REJECT matrix as advisory input. Keep the
 application stack locked until the normal Architecture/ADR transition.
+
+## 2026-09-13 — Product-owner Discovery definition promoted for review
+
+**Context:** Issue #4, branch `discovery/issue-4-promote-product-definition`, draft PR #5.
+**Did:** Promoted the product-owner Discovery synthesis into project-owned documentation: `docs/PRODUCT.md` now defines Greenfield2 as a mobile-first universal software-development interface with provider-owned development state; `docs/DOMAIN.md` records only the minimal Greenfield2-owned vocabulary; `FOUNDATIONS.md` and `README.md` were aligned to the same authority boundary. VibeFlow remains the interoperability/baseplate reference, Replit remains clean-room product/behavior evidence, and Happier remains an architecture/feasibility reference. No provider, application stack, protocol, framework, database, hosting target or application code was selected or added; `config/project.env` was not changed.
+**Verified:** GitHub Actions run `34745639182` on draft PR #5 completed successfully on the documentation head before this memory append. `Foundation gate` ran `bash scripts/verify.sh` and reported `RESULT: PASS — 17 passed, 0 failed, 1 skipped`; the skip was AgentShield scanning zero Claude-config files, explicitly advisory. The same job ran `bash scripts/selftest.sh` and reported `SELFTEST: PASS — 128 cases behaved as asserted`. `Independent checks` also completed successfully, including the check that no application stack was introduced. A separate local attempt to clone the branch failed before any repository command could run because the tool container could not resolve `github.com`; local verification was therefore not claimed. This memory append changes the PR head and requires the normal CI gate to run again before review readiness is final.
+**Learned:** The Discovery synthesis can be promoted without inheriting VibeFlow control-plane authority, Replit's entity model, or Happier's session/persistence authority. The durable product rule is that Greenfield2 is the interface and provider resources remain provider-authoritative; Greenfield2-owned state is limited to its own account/interface/connection/support/reference metadata. The first provider and all application-architecture choices remain intentionally unresolved.
+**Next:** Confirm the post-memory PR head passes the GitHub `verify` workflow, update PR #5 with the final verification evidence, then send the draft for independent review. Do not merge or move `PROJECT_PHASE` to `architecture` as part of this Discovery-promotion PR; any lifecycle transition is separate reviewed work.
