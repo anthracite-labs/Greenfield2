@@ -33,7 +33,7 @@ For MVP, Greenfield2 proves this model with one user-supplied full-stack provide
 
 The detailed product definition, V1 scope, non-goals, success measures and constraints live in [`docs/PRODUCT.md`](docs/PRODUCT.md). The minimal accepted product vocabulary and ownership semantics live in [`docs/DOMAIN.md`](docs/DOMAIN.md).
 
-PR #5 completed the reviewed Discovery promotion. Issue #6 moves only the repository lifecycle into Architecture; it does not select a provider, stack, protocol, framework, database, auth implementation, hosting target or UI technology.
+PR #5 completed the reviewed Discovery promotion. Issue #6 then moved only the repository lifecycle into Architecture; it did not select a provider, stack, protocol, framework, database, auth implementation, hosting target or UI technology.
 
 ## 3. Foundation/core engineering system is protected
 
@@ -130,7 +130,7 @@ implementation mission / issue
 verified change + independent review
 ```
 
-PR #5 completed the product-definition promotion. Issue #6 performs the separate lifecycle transition into Architecture.
+PR #5 completed the product-definition promotion. Issue #6 completed the separate lifecycle transition into Architecture.
 
 No protocol, framework, database, auth system, workflow engine, workspace provider, Agent, model provider, deployment provider or harvested codebase is approved merely by entering Architecture.
 
