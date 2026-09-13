@@ -100,7 +100,7 @@ Risks/unknowns:
 - Cursor diff surface: public API exposes branch reference, not inline diff; need spike note.
 - Jules auth is API-key header, not OAuth; paid plans limited to @gmail.com individual accounts currently.
 - OpenAI Codex hosted path unverified for third-party use; local App Server would violate MVP non-goal of no Greenfield2-owned runtime.
-- Replit MCP only 8 tools, no files/diffs/progress/approval surface; would require private interfaces which are prohibited.
+- Replit MCP current surface 3 tools per https://docs.replit.com/platforms/mcp-server stating 'The server exposes three public tools' — create_app_from_prompt (phase/replId/turnId/replUrl async), update_app_using_prompt (same replId continuation + cross-client handoff), ask_question (discussion mode can check build status/report build progress); no files/diffs/patch/remote-reference, no structured progress/activity event stream (only discussion-mode status via ask_question), no approvals; would require private interfaces which are prohibited — fails PRODUCT.md item 4 per contract §5.5.1. Initial pre-research assumption of 8 tools (create_app_from_prompt, search_apps, resolve_app_by_name, list_apps, ask_question, update_app_using_prompt, publish_app, get_publish_status) superseded by current first-party 3-tool evidence.
 - Must not introduce application stack, framework, database, hosting; keep ALLOW_APP_STACK=0.
 - No provider API calls; documentation-level validation only.
 
