@@ -161,3 +161,239 @@ application stack locked until the normal Architecture/ADR transition.
 **Verified:** GitHub Actions run `34749346800` on PR #10 completed successfully on the pre-memory head `e54a46bd7a69854986c493e20a98ba22c377ac47`. `Foundation gate` ran `bash scripts/verify.sh` and reported `phase: architecture, allow_app_stack=0`, `RESULT: PASS — 17 passed, 0 failed, 1 skipped`; AgentShield scanned zero Claude-config files and was explicitly advisory. The same job ran `bash scripts/selftest.sh` and reported `SELFTEST: PASS — 128 cases behaved as asserted`. `Independent checks` completed successfully, including `Confirm no application stack was introduced`. A local clone/verification attempt failed before checkout because the tool container could not resolve `github.com`; local verification is not claimed. Before the branch was created, an attempted content-identical README write accidentally omitted the branch parameter and created direct-main commit `c65745def6a4a61e6bd52622c5501b5f8d9bf9dd`; GitHub reports `diff: null` and `files: null`, and the README blob SHA remained unchanged. No repository content changed in that commit; the history is preserved rather than rewritten. This memory append changes the PR head and therefore requires a fresh CI run before review readiness is final.
 **Learned:** Selecting a provider before defining the provider boundary creates vendor-shaping risk even when the provider is described as only an MVP proving slice. Greenfield2's safer order is contract → heterogeneous provider validation → contract revision → provider selection → provider-specific adapter. The process incident also confirms branch parameters must be explicit on every GitHub contents write; a content-identical main commit is still a workflow violation even when it has no diff.
 **Next:** Confirm the post-memory PR head passes GitHub Actions, verify the final diff keeps this memory change append-only, update PR #10 with final conformance/verification evidence, and mark it ready for independent review. Keep Issue #9 open for the actual capability-contract definition and multi-provider validation; do not select a provider or enable implementation in this PR.
+
+## 2026-09-13 — Provider capability contract defined and validated
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`. PR #10 had already
+merged ADR-0005 and the sequencing docs, satisfying only acceptance criterion 1
+and deliberately leaving Issue #9 open for the contract itself.
+
+**Did:** Defined the provider-neutral capability contract as
+`docs/architecture/PROVIDER_CAPABILITY_CONTRACT.md` v1.0 — capability catalogue
+phrased as provider-neutral questions, a capability manifest as the contract's
+root, opaque provider-native handles, three independently-sourced availability
+layers (provider capability / account entitlement / Greenfield2 UI support),
+declared update-delivery modes, adapter obligations, and ten anti-leakage
+prohibitions with a reproducible audit. Validated it against four materially
+different provider shapes in `docs/architecture/PROVIDER_SHAPE_VALIDATION.md`
+(Google Jules, Cursor Cloud Agents, Replit MCP, GitHub Copilot), recording ten
+revisions F1–F10. Recorded the structural choice as ADR-0006. Added
+`docs/architecture/README.md`, indexed ADR-0006, and aligned
+`docs/ARCHITECTURE.md` (contract now in a "decided" table; first-provider row
+marked unblocked), `docs/ROADMAP.md` (two checkboxes ticked) and `README.md`.
+No provider, transport, framework, database, auth implementation, hosting target
+or UI technology was selected. `config/project.env` was not touched. No
+`.ecc/**`, `scripts/**` or `.github/**` file was modified.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`; the skips were `shell_lint` (shellcheck absent locally; CI runs it)
+and `agentshield` (0 Claude-config files, advisory). `bash scripts/selftest.sh`
+→ `SELFTEST: PASS — 128 cases behaved as asserted`. `links` resolved 153
+relative links across the enlarged doc set. The two anti-leakage audits in the
+contract were executed, not just written: audit A returned no matches (exit 1);
+audit B returned exactly 4 matches, all inside the sections that state the
+prohibition. Sandbox egress to every vendor documentation host failed at the TLS
+handshake (`curl https://jules.google/` → `SSL_ERROR_SYSCALL`), so provider
+evidence came from the platform-side fetch/search tools against primary provider
+documentation; each source is cited with its access date in the validation
+record. No provider API was called.
+
+**Learned:** Three environment traps worth recording. (1) `PyYAML` is absent in
+the sandbox, so `workflows_yaml` SKIPs and `selftest.sh` genuinely FAILS on
+`workflows_yaml/corrupted` — that failure is real, not cosmetic, and is fixed by
+`pip install --break-system-packages PyYAML` (plain `pip install` is refused
+under PEP 668). (2) `npm install -g shellcheck` is a trap: it installs a shim
+that cannot download the real binary here (`unable to verify the first
+certificate`), and because `verify.sh` only tests `command -v shellcheck`, the
+broken shim turns an honest SKIP into a false FAIL across all five foundation
+scripts. Uninstall it rather than trusting that FAIL. (3) The GitHub token
+available here can read issues and write contents/PRs but cannot comment on
+issues (`POST /issues/9/comments` → 403 "Resource not accessible by integration"),
+so the Issue #9 plan went into the PR body instead, as `planning.md` permits.
+
+On the substance: every apparent universal in the first contract draft turned
+out to be a majority case. Work items, diffs, approvals, results, streaming and
+entitlements each looked provider-neutral until a shape arrived that lacked them
+or meant something different — Replit exposes no work item at all, and Cursor
+changed its own resource topology and identifier format between `v0` and `v1`.
+The durable lesson is that a contract validated without revisions is suspicious,
+not successful.
+
+**Next:** First-provider selection is now **unblocked and still open**; it is a
+separate decision using the Product Fit + Integration Legitimacy gates in
+`docs/PRODUCT.md`, and the validation set must not be inherited as the answer.
+Re-verify the dated provider profiles before relying on any specific endpoint in
+that decision — all four surfaces are pre-stable. Independent review should look
+hardest at the §4.3 presentation liveness hint, which is the one place a shadow
+state machine could start, and at whether `Absent` is honoured everywhere rather
+than silently coerced. Do not self-merge.
+
+## 2026-09-13 — Provider contract corrected after independent review (v1.0 → v1.1)
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. Independent
+review of the v1.0 contract returned five substantive findings plus one process
+finding. The overall capability-contract approach was kept; the defects were
+corrected.
+
+**Did:** Contract promoted to **v1.1** with five corrections, each recorded as a
+new finding F11–F15 in `PROVIDER_SHAPE_VALIDATION.md` §4b rather than patched
+silently. **F11** — v1.0 said a provider with no change-inspection surface "may
+still qualify" for the MVP loop; PRODUCT.md minimum V1 item 4 carries no "where
+exposed" qualifier, so that relaxed an accepted product requirement. §5 now maps
+every PRODUCT.md item to a capability with its exact qualifier, and `none` is a
+Gate 1 disqualifier. **F12** — `unknown` entitlement was declared but undefined;
+§3.2.1 now defines it and splits behaviour by risk (reads may be optimistic,
+mutating/spend-bearing invocations may not be speculative or auto-retried and
+must warn before commit), §3.2.2 enumerates five evidence kinds, and the manifest
+gains a `mutates` flag. **F13** — the contract could not express mandatory
+provider-native inputs (Replit requires `app_stack` from a fixed provider list);
+new §5.9 adds `RequiredInput`/`InvocationContext`. **F14** — one `ProviderHandle`
+type served both `connection.authorize` and resource references, but DOMAIN.md
+defines **Provider Connection** and **Provider Resource Reference** as separate
+entities; §4 is now split, with the connection legitimately carrying a
+Greenfield2-owned lifecycle and the resource reference not. **F15** — "verbatim"
+error pass-through contradicted PRODUCT.md's "readability **and safe
+presentation**"; §8 now separates unaltered semantics (§8.1) from sanitized
+presentation (§8.2) with a named risk table. Process: ADR-0006 was `accepted`
+while on an unmerged branch, contrary to `.ecc/skills/decisions.md`; it is now
+`proposed`. Added prohibitions P11–P14. No duplicate provider-selection issue
+was created — **Issue #8 already exists** and is now referenced from the
+contract, validation record, ADR-0006, ARCHITECTURE, ROADMAP and README.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`, with `links` resolving 163 relative links (was 153). `bash
+scripts/selftest.sh` → `SELFTEST: PASS — 128 cases behaved as asserted`. Both
+anti-leakage audits re-executed after the rewrite: audit A no matches (exit 1);
+audit B exactly 4 matches, unchanged and confined to the sections stating the
+prohibition. Section numbering re-checked end to end after the §4 split and §4.5
+renumber. No provider selected; `config/project.env` untouched; no `.ecc/**`,
+`scripts/**` or `.github/**` file modified.
+
+**Learned:** The most useful lesson is that the two review passes found
+**different classes** of defect. F1–F10 came from comparing the contract against
+provider shapes and all say the same thing — every apparent universal was a
+majority case. F11–F15 came from comparing it against Greenfield2's own accepted
+product and domain truth, and passing the provider-shape test caught none of
+them. A contract can be perfectly provider-neutral and still be wrong about the
+product it exists to serve. Concretely: provider-neutrality pulled toward
+"everything is optional and provider-defined", which quietly relaxed a product
+requirement, merged two domain entities into one convenient type, and preferred
+fidelity over safety in error text. Two more traps worth recording: a
+`sed`-style blanket rename of `ProviderHandle` also rewrote
+`connection.authorize`'s return type, which is exactly the conflation being
+fixed — type splits need per-site review, not global replace; and an ADR marked
+`accepted` on an unmerged branch is a real workflow violation even though
+nothing depended on it yet.
+
+**Next:** PR #11 is updated and left open for a second independent review. The
+reviewer should check (a) whether the §5 qualifier table now matches PRODUCT.md
+exactly, (b) whether §3.2.1's read/mutating split is the right risk boundary,
+and (c) the referred product question: can `live-artifact` alone satisfy minimum
+V1 item 4? ADR-0006 must be flipped to `accepted` and re-indexed only after the
+PR merges. Provider selection remains Issue #8's job.
+
+## 2026-09-13 — Provider contract consistency corrections (second review pass)
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. Four
+internal-consistency findings on the v1.1 contract. Architecture and scope
+unchanged; smallest corrections only. Recorded as C1–C4 in
+`PROVIDER_SHAPE_VALIDATION.md` §4c.
+
+**Did:** **C1** — §3 still said `effective = L1 ∧ L2 ∧ L3`, boolean notation over
+a layer §3.2 had made three-valued, so `unknown` would silently have evaluated
+as `false` and contradicted §3.2.1. Replaced with a total `resolution(...)`
+function over L1 × L2 × L3 whose six outcomes match the §3.1 disposition table
+row for row. **C2** — §2 still called `ProviderRefusal` "verbatim", the wording
+F15 had removed from §8; now "semantics unaltered, presentation sanitized".
+**C3** — the `live-artifact` question was left open although PRODUCT.md already
+answers it: item 4 says *"changed files and/or diffs"*, so running or published
+output is not change inspection and does not satisfy item 4 alone, though it
+does count under item 6 via `result.observe`. No product decision was needed.
+**C4** — ARCHITECTURE.md listed ADR-0006 under "decisions — decided" and called
+first-provider selection "now unblocked" in three places while the ADR is
+`proposed`. ADR-0006 moved to a "proposed, not yet in force" section; the
+open-decisions row now reads "blocked pending acceptance of ADR-0006";
+ROADMAP, README, contract §11 and ADR-0006's own follow-ups now agree. Also
+fixed a stale "ten recorded revisions" in ARCHITECTURE.md.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`, `links` resolving 169 relative links. `bash scripts/selftest.sh` →
+`SELFTEST: PASS — 128 cases behaved as asserted`. Both anti-leakage audits
+re-executed: audit A no matches (exit 1); audit B exactly 4 matches, unchanged.
+Confirmed by grep that every remaining use of the word "unblocked" is a negation.
+No provider selected; `config/project.env` untouched; no `.ecc/**`, `scripts/**`
+or `.github/**` file modified.
+
+**Learned:** C4 is the one worth carrying forward. Changing an ADR's `Status:`
+field to `proposed` is not sufficient on its own — if the surrounding documents
+keep describing that ADR's consequences as already in force, the status field is
+decoration and the repository still reads as though the decision had landed. A
+status change has to be propagated to every place that asserts the consequence,
+which here meant three separate "unblocked" claims across three files. The
+generalizable check is: after changing any status marker, grep for the
+*consequences* of that status, not just for the marker. C1 is the mirror image
+of the same failure — a formal notation left behind when the prose it summarised
+was corrected — so a rule worth keeping is that any formula in these documents
+must be re-derived whenever the semantics it encodes change.
+
+**Next:** PR #11 updated and left open for final independent review. When it
+merges: flip ADR-0006 to `accepted`, update the index row, move the contract row
+from ARCHITECTURE.md's "proposed, not yet in force" table into "decided", and
+only then treat Issue #8 as unblocked. Provider selection remains Issue #8's job.
+
+## 2026-09-13 — ADR-0006 accepted; provider capability contract in force
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. The product
+owner accepted ADR-0006 and the provider capability contract direction. This
+session performs the acceptance transition only, plus one table fix from
+independent review. Issue #8 was **not** started.
+
+**Did:** Propagated ADR-0006 from `proposed` to `accepted` everywhere its
+consequences were asserted: the ADR itself (status line plus a deciders line
+recording product-owner acceptance, 2026-09-13), the `docs/decisions/README.md`
+index row, `docs/ARCHITECTURE.md` (the "proposed, not yet in force" table was
+folded back into "decided"; the status paragraph and the open-decisions row now
+say selection is open *as a consequence of* the acceptance), `docs/ROADMAP.md`,
+`README.md`, contract §11 and the validation record §6. Removed the now-obsolete
+"mark accepted at merge" follow-up and replaced it with a real one: re-read the
+contract against live provider behaviour during first adapter implementation.
+Also fixed **C5**, the §3.1 row the reviewer flagged: it read
+`L1=✓, L2=unknown, L3=–`, which overlapped the separate `L3=✗` row and
+contradicted `resolution()`, where `unconfirmed` requires L3 to be true. It now
+reads `L3=✓`. Recorded C5 and the reversal of C4 in §4c.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`; `links` 169 resolve; `lifecycle` reports
+`phase=architecture, allow_app_stack=0` — **no lifecycle transition occurred**,
+which is the intended outcome: accepting a contract ADR is not an implementation
+transition. `bash scripts/selftest.sh` → `SELFTEST: PASS — 128 cases`.
+`git diff --stat -- config/project.env` is empty, confirming the lifecycle state
+is untouched. Confirmed by grep that ADR-0006 does **not** carry the literal
+`**Decision Type:** application-stack` marker (its one "application-stack"
+occurrence is prose in a follow-up), so `STACK_DECISION_ADR` stays unambiguous
+and `validate_stack_transition` cannot mistake it for the stack ADR. Both
+anti-leakage audits re-executed: audit A no matches (exit 1); audit B 4 matches,
+unchanged. §3.1 now has six rows mapping one-to-one onto the six `resolution()`
+outcomes, covering all twelve L1 × L2 × L3 combinations exactly once.
+
+**Learned:** Two things. First, an acceptance transition is mostly *tense
+maintenance*: the substantive edit was one status line, and the remaining work
+was finding every place that had been written in the conditional or the blocked
+voice — including a history note in §4b that still said "it is now `proposed`"
+in the present tense. A grep for the status marker is not enough; grep for
+"blocked", "not yet", "pending", and for the consequences. Second, the C4 lesson
+survives its own reversal. C4 said "do not describe a proposed ADR's
+consequences as in force"; accepting the ADR means those consequences are now
+correctly in force, and C4 was deleted from nothing — it stays in the log
+because the failure mode does not depend on which way the status points. A
+correction that is later overtaken by events should be marked superseded with
+the reason, not quietly rewritten, or the log stops being a record.
+
+**Next:** PR #11 is prepared for final merge and left **open** for final
+independent review; it was not merged. On merge, Issue #8 may proceed to
+evaluate first-provider candidates against the Product Fit and Integration
+Legitimacy gates — the validation set is evidence only and must not be inherited
+as the answer. Implementation remains locked: `ALLOW_APP_STACK=0`,
+`PROJECT_PHASE=architecture`, `STACK_DECISION_ADR` empty. The application stack
+still needs its own accepted ADR plus the separate reviewed lifecycle
+transition.
