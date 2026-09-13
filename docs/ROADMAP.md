@@ -1,7 +1,8 @@
 # Roadmap
 
-Lifecycle sequencing only. No product commitments, dates, or feature promises —
-this repository has no product definition yet (see [PRODUCT.md](PRODUCT.md)).
+Lifecycle sequencing only. Product commitments, scope and non-goals live in
+[PRODUCT.md](PRODUCT.md); this file records how the repository progresses from
+product definition to reviewed Architecture and then implementation.
 
 The stages below map one-to-one onto `PROJECT_PHASE` in
 [`../config/project.env`](../config/project.env), so the roadmap and the
@@ -13,6 +14,8 @@ factory  →  discovery  →  architecture  →  implementation
  template   product not     product defined,  stack recorded in an ADR;
  itself     yet defined     stack being       application code allowed
                             decided (ADR)     (ALLOW_APP_STACK=1)
+                              ▲
+                        Greenfield2 now
 ```
 
 ## Stage: factory (`PROJECT_PHASE=factory`)
@@ -28,30 +31,46 @@ Exit condition: a new repository is generated from the template and
 
 The default state of a newly generated application repository.
 
-- [ ] Run `scripts/init-project.sh`, then `scripts/verify.sh` and
+- [x] Run `scripts/init-project.sh`, then `scripts/verify.sh` and
       `scripts/selftest.sh` — both must pass before any other work.
 - [ ] Complete the repository-admin checklist in [FACTORY.md](FACTORY.md);
-      template copies files, not GitHub configuration.
-- [ ] Open a product-discovery issue and answer the questions in
+      template copies files, not GitHub configuration. This remains a governance
+      follow-up and is not silently treated as complete.
+- [x] Open a product-discovery issue and answer the questions in
       [PRODUCT.md](PRODUCT.md).
-- [ ] Record the domain vocabulary in [DOMAIN.md](DOMAIN.md) as it emerges.
+- [x] Record the domain vocabulary in [DOMAIN.md](DOMAIN.md) as it emerges.
 
 The no-stack guard is active. Application-stack artifacts are rejected.
 
-Exit condition: [PRODUCT.md](PRODUCT.md) contains a reviewed product
-definition.
+Exit condition: [PRODUCT.md](PRODUCT.md) contains a reviewed product definition.
+This condition was satisfied by PR #5; Issue #6 performs the separate lifecycle
+transition into Architecture.
 
 ## Stage: architecture (`PROJECT_PHASE=architecture`)
 
-- [ ] Open an architecture issue proposing the implementation stack.
-- [ ] Evaluate real alternatives; record the choice as an ADR in
-      [decisions/](decisions/README.md) with the costs stated.
-- [ ] Decide the testing strategy and what the stack-specific CI gate will run.
+Architecture is the active Greenfield2 lifecycle stage.
 
-The no-stack guard remains active until the ADR exists. It is not disabled to
-"try something out".
+- [ ] Open Architecture issues for the decisions that actually need to be made.
+- [ ] Evaluate the first provider against the accepted product-fit and
+      integration-legitimacy gates; do not inherit a provider choice from
+      Discovery references.
+- [ ] Evaluate real implementation alternatives; record durable choices as ADRs
+      in [decisions/](decisions/README.md) with costs and rejected alternatives
+      stated.
+- [ ] Define application boundaries, provider-adapter responsibilities and
+      trust/data boundaries without changing the provider-authoritative product
+      rule.
+- [ ] Decide the testing strategy and what the future stack-specific CI gate
+      must run.
+- [ ] Select and accept the application stack through an ADR only after the
+      relevant alternatives have been researched and reviewed.
 
-Exit condition: an accepted stack ADR.
+The no-stack guard remains active throughout Architecture. `ALLOW_APP_STACK=0`
+and an empty `STACK_DECISION_ADR` mean Architecture may research and decide but
+may not introduce application-stack artifacts simply to "try something out".
+
+Exit condition: an accepted application-stack ADR that satisfies the lifecycle
+guard's required markers.
 
 ## Stage: implementation (`PROJECT_PHASE=implementation`)
 
@@ -68,10 +87,11 @@ Exit condition: an accepted stack ADR.
       running alongside them; it is never replaced.
 - [ ] Add codemaps under [codemaps/](codemaps/README.md) as code areas appear.
 
-## Explicitly not planned in the foundation
+## Explicitly not pre-decided by the foundation or Discovery
 
-- Any framework, database, auth scheme, hosting target, or UI choice. Those are
-  per-project decisions made in the `architecture` stage.
+- Any framework, database, auth implementation, hosting target, protocol, UI
+  technology or first provider. Those are per-project decisions made through
+  Architecture issues and ADRs.
 - Native ECC plugin compatibility — Arena has no plugin runtime.
 - Browser E2E in the foundation gate — no browser binaries in the sandbox.
 - `.git/hooks/` enforcement — hooks do not survive a fresh clone.
