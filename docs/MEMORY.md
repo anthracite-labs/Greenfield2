@@ -291,3 +291,52 @@ exactly, (b) whether §3.2.1's read/mutating split is the right risk boundary,
 and (c) the referred product question: can `live-artifact` alone satisfy minimum
 V1 item 4? ADR-0006 must be flipped to `accepted` and re-indexed only after the
 PR merges. Provider selection remains Issue #8's job.
+
+## 2026-09-13 — Provider contract consistency corrections (second review pass)
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. Four
+internal-consistency findings on the v1.1 contract. Architecture and scope
+unchanged; smallest corrections only. Recorded as C1–C4 in
+`PROVIDER_SHAPE_VALIDATION.md` §4c.
+
+**Did:** **C1** — §3 still said `effective = L1 ∧ L2 ∧ L3`, boolean notation over
+a layer §3.2 had made three-valued, so `unknown` would silently have evaluated
+as `false` and contradicted §3.2.1. Replaced with a total `resolution(...)`
+function over L1 × L2 × L3 whose six outcomes match the §3.1 disposition table
+row for row. **C2** — §2 still called `ProviderRefusal` "verbatim", the wording
+F15 had removed from §8; now "semantics unaltered, presentation sanitized".
+**C3** — the `live-artifact` question was left open although PRODUCT.md already
+answers it: item 4 says *"changed files and/or diffs"*, so running or published
+output is not change inspection and does not satisfy item 4 alone, though it
+does count under item 6 via `result.observe`. No product decision was needed.
+**C4** — ARCHITECTURE.md listed ADR-0006 under "decisions — decided" and called
+first-provider selection "now unblocked" in three places while the ADR is
+`proposed`. ADR-0006 moved to a "proposed, not yet in force" section; the
+open-decisions row now reads "blocked pending acceptance of ADR-0006";
+ROADMAP, README, contract §11 and ADR-0006's own follow-ups now agree. Also
+fixed a stale "ten recorded revisions" in ARCHITECTURE.md.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`, `links` resolving 169 relative links. `bash scripts/selftest.sh` →
+`SELFTEST: PASS — 128 cases behaved as asserted`. Both anti-leakage audits
+re-executed: audit A no matches (exit 1); audit B exactly 4 matches, unchanged.
+Confirmed by grep that every remaining use of the word "unblocked" is a negation.
+No provider selected; `config/project.env` untouched; no `.ecc/**`, `scripts/**`
+or `.github/**` file modified.
+
+**Learned:** C4 is the one worth carrying forward. Changing an ADR's `Status:`
+field to `proposed` is not sufficient on its own — if the surrounding documents
+keep describing that ADR's consequences as already in force, the status field is
+decoration and the repository still reads as though the decision had landed. A
+status change has to be propagated to every place that asserts the consequence,
+which here meant three separate "unblocked" claims across three files. The
+generalizable check is: after changing any status marker, grep for the
+*consequences* of that status, not just for the marker. C1 is the mirror image
+of the same failure — a formal notation left behind when the prose it summarised
+was corrected — so a rule worth keeping is that any formula in these documents
+must be re-derived whenever the semantics it encodes change.
+
+**Next:** PR #11 updated and left open for final independent review. When it
+merges: flip ADR-0006 to `accepted`, update the index row, move the contract row
+from ARCHITECTURE.md's "proposed, not yet in force" table into "decided", and
+only then treat Issue #8 as unblocked. Provider selection remains Issue #8's job.

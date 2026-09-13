@@ -1,6 +1,6 @@
 # Provider Capability Contract
 
-**Version:** 1.1 (validated; revised after independent review — see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) §4b, findings F11–F15)
+**Version:** 1.1 (validated; revised after independent review — see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) §4b findings F11–F15 and §4c consistency corrections C1–C4)
 **Status:** Architecture-level contract. Not an interface implementation, not a schema file, not an SDK.
 **Lifecycle:** `PROJECT_PHASE=architecture`, `ALLOW_APP_STACK=0`. This document selects no transport, framework, database, auth implementation, hosting target, UI technology or provider.
 **Authority:** [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md) requires this contract to exist and be validated before any first-provider selection. [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) records its structural shape.
@@ -49,13 +49,15 @@ Language-neutral, because no stack is selected.
 capability.operation(input, …) -> Result | Absent | ProviderRefusal
 ```
 
-- `Result` — a provider-native payload inside the envelope defined in §4.
+- `Result` — a provider-native payload inside the envelope defined in §4.4.
 - `Absent` — the provider does not expose this capability. Distinguished from a
   failure. `Absent` is a legal, expected, permanent-until-the-provider-changes
   outcome, and must never be retried as if it were transient.
 - `ProviderRefusal` — the provider declined: not entitled, out of quota, policy,
-  invalid input, or a provider-side error. Carries the provider's own error,
-  verbatim (§8).
+  invalid input, or a provider-side error. Carries the provider's error
+  **semantics unaltered** — code, category, retryability and provider-stated
+  remedy — in a **sanitized presentation**. It does not carry provider text
+  verbatim; see §8.1 and §8.2.
 
 `required` / `optional` on a capability describes the **MVP loop role**, not a
 demand that every provider supply it. See §5.
@@ -75,8 +77,26 @@ must be able to tell them apart.
 | **L3 — Greenfield2 UI support** | Does Greenfield2 have a validated surface for it? | Greenfield2 | Greenfield2 build metadata ([DOMAIN.md](../DOMAIN.md) *Capability Support*) | Release-driven |
 
 ```text
-effective(capability, account) = L1 ∧ L2 ∧ L3
+L2 is three-valued, so availability is NOT a boolean conjunction. L2 = unknown
+is neither true nor false, and must never be collapsed into either.
+
+resolution(capability, account) =
+    not-offered              if  ¬L1
+    unavailable-for-account  if  L1 ∧  L2 = not-entitled
+    unconfirmed              if  L1 ∧  L2 = unknown     ∧  L3   # behaviour per §3.2.1
+    handoff                  if  L1 ∧  L2 = entitled    ∧ ¬L3
+    handoff (unconfirmed)    if  L1 ∧  L2 = unknown     ∧ ¬L3
+    operable                 if  L1 ∧  L2 = entitled    ∧  L3
 ```
+
+Rows are evaluated in order; the function is total over L1 × L2 × L3 and matches
+the disposition table in §3.1 exactly.
+
+Only `operable` means the capability is straightforwardly usable in Greenfield2.
+`unconfirmed` is a distinct outcome, not a degraded `operable`: under §3.2.1 a
+read-only capability may proceed, while a mutating or spend-bearing capability
+may not proceed on the strength of an `unknown` L2 without an explicit,
+warned user invocation.
 
 ### 3.1 Why the layers must not be collapsed
 
@@ -422,11 +442,20 @@ contract has no authority to do so. The declaration `none` remains a legal and
 honest *capability statement* — it is L1 truth and must be representable — but
 it is a disqualifier for the first provider, not a tolerated gap.
 
-**`live-artifact` is flagged, not resolved.** Whether observing a running or
-published artifact can satisfy item 4 on its own is a **product interpretation**
-this contract does not settle. It is recorded here as an open question for the
-product owner, and until it is answered the safe reading applies: `live-artifact`
-alone does not satisfy item 4. See §11.
+**`live-artifact` does not satisfy item 4 — resolved from PRODUCT.md's own
+wording.** Item 4 is *"inspect meaningful provider-exposed **changed files
+and/or diffs**"*. A running, previewed or published artifact is neither changed
+files nor diffs, so observing one is not change inspection, and `live-artifact`
+alone does not satisfy item 4.
+
+That is a scoping statement, not a demotion. The same observable output is
+squarely within **item 6** — *"a meaningful provider result such as a preview,
+build, deployment, pull request, or provider-equivalent outcome"* — so a
+provider that exposes running or published output earns that credit under
+`result.observe` (§5.5.2), and `handoff.native` still gives the user a path to
+the provider's own surfaces. What it cannot do is stand in for item 4. A first
+provider therefore needs a genuine change-inspection surface (`inline-patch` or
+`remote-reference`) in addition to any live output it exposes.
 
 #### 5.5.2 `result.observe` is typed provider-natively
 
@@ -791,9 +820,13 @@ the gap by accident:
 
 - **Which provider is first.** Explicitly deferred by
   [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md)
-  until this contract is validated. Validation is now complete
-  ([PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md)), so selection is
-  unblocked and is tracked by the existing
+  until this contract is validated. The validation is complete
+  ([PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md)), but selection
+  does **not** become open until this contract's structural decision
+  ([ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md))
+  is **accepted**; ADR-0006 is currently `proposed`, so Issue #9's ordering
+  precondition is not yet fully discharged. Selection work belongs to the
+  existing
   **[Issue #8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)**
   using the Product Fit and Integration Legitimacy gates in
   [PRODUCT.md](../PRODUCT.md). **This document selects no provider**, and no
@@ -807,10 +840,11 @@ the gap by accident:
   more providers, not by assumption.
 - **Cross-provider composition (BYOK/BYOA/BYOW).** Post-MVP direction in
   [PRODUCT.md](../PRODUCT.md); deliberately not modelled here.
-- **Whether `live-artifact` alone can satisfy minimum V1 item 4** (§5.5.1). This
-  is a **product interpretation**, not an Architecture call, and it is referred
-  to the product owner rather than decided here. Until it is answered, the safe
-  reading applies: `live-artifact` alone does not satisfy item 4.
+- *Resolved, recorded here so it is not reopened:* **`live-artifact` alone does
+  not satisfy minimum V1 item 4** (§5.5.1). PRODUCT.md item 4 says *"changed
+  files and/or diffs"*; running or published output is neither. Such output
+  still counts under item 6 via `result.observe`. This follows from the accepted
+  product wording and needed no new product decision.
 
 ---
 

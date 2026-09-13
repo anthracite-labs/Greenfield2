@@ -59,14 +59,17 @@ The capability contract is **not** a universal Greenfield2 resource model. It de
 
 **Status: steps 1–3 are complete.** The contract is recorded as
 [the provider capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md)
-v1.1, its structural shape is recorded in
+v1.1, its structural shape is proposed in
 [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md),
-and it was validated against four materially different provider shapes with ten
-recorded revisions in
-[the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md). Step 4 —
-first-provider selection — is therefore **unblocked and still open**. It is
-tracked by the existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8),
-not by a new issue.
+and it was validated against four materially different provider shapes with
+fifteen recorded revisions in
+[the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md).
+
+Step 4 — first-provider selection — is **not yet open**. ADR-0005's precondition
+is a *validated contract*, and the contract's structural decision is still
+`proposed`, so that precondition is not yet fully discharged. Selection work
+belongs to the existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8),
+not to a new issue, and Issue #8 should wait for ADR-0006 to be accepted.
 
 The contract must keep three questions separate, and v1.1 models them as three independently-sourced layers:
 
@@ -82,15 +85,23 @@ The validated set was Jules, Cursor, Replit and GitHub Copilot. Those names are 
 
 ## Application Architecture decisions — decided
 
+Accepted decisions only.
+
 | Area | Decision | Recorded in |
 | :-- | :-- | :-- |
-| Provider-contract-first sequencing | Define and validate the provider capability contract before selecting the first provider. | [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md) |
-| Provider capability contract | A declared capability manifest over opaque provider-native resource references, resolved through three independently-sourced availability layers. Validated against four materially different provider shapes; fifteen revisions recorded. | [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md), [contract v1.1](architecture/PROVIDER_CAPABILITY_CONTRACT.md), [validation record](architecture/PROVIDER_SHAPE_VALIDATION.md) |
+| Provider-contract-first sequencing | Define and validate the provider capability contract before selecting the first provider. | [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md) — accepted |
 
-ADR-0006 is recorded as **`proposed`** until this work is merged after
-independent review, per [`.ecc/skills/decisions.md`](../.ecc/skills/decisions.md)
-("`proposed` until it is actually in force"). It appears here because the
-decision and this page land together; it is not yet authority.
+## Application Architecture decisions — proposed, not yet in force
+
+| Area | Proposed decision | Status | Recorded in |
+| :-- | :-- | :-- | :-- |
+| Provider capability contract | A declared capability manifest over opaque provider-native resource references, resolved through three independently-sourced availability layers. Validated against four materially different provider shapes; fifteen revisions recorded. | **`proposed`** — not authority until accepted | [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md), [contract v1.1](architecture/PROVIDER_CAPABILITY_CONTRACT.md), [validation record](architecture/PROVIDER_SHAPE_VALIDATION.md) |
+
+Per [`.ecc/skills/decisions.md`](../.ecc/skills/decisions.md) an ADR is
+"`proposed` until it is actually in force". ADR-0006 sits on an unmerged branch
+awaiting independent review, so it is recorded as `proposed` and nothing may
+rely on it as settled — including the claim that first-provider selection is
+unblocked.
 
 ## Application Architecture decisions — currently open
 
@@ -98,7 +109,7 @@ No item in this section is selected merely by being listed.
 
 | Area | Architecture question | Decision vehicle |
 | :-- | :-- | :-- |
-| First provider | **Now unblocked.** Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? The validation set is evidence only and must not be inherited as the answer. | The existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8), using the Product Fit + Integration Legitimacy gates; ADR if the choice creates durable coupling |
+| First provider | **Blocked pending acceptance of ADR-0006.** Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? The validation set is evidence only and must not be inherited as the answer. | The existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8), using the Product Fit + Integration Legitimacy gates; ADR if the choice creates durable coupling |
 | Client/application stack | Which approach best supports phone-first and larger-screen surfaces while respecting the repository constraints? | Application-stack ADR |
 | Provider boundary | Contract-level adapter obligations are fixed by [the capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md) §9. What remains is the code-level adapter interface, which needs a stack. | Architecture issue after the application-stack ADR |
 | Identity/auth | How does Greenfield2 Account connect to provider authorization while keeping entitlement distinct? | Security/Architecture review + ADR if durable |

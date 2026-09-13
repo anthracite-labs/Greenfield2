@@ -323,7 +323,12 @@ because each one is a defect a future session could reintroduce.
   PRODUCT.md's qualifiers exactly and states that PRODUCT.md wins on
   disagreement. §5.5.1 now states that `none` **fails** Product Fit (Gate 1).
   `none` stays representable as honest L1 truth — the correction is about
-  qualification, not about hiding the capability.
+  qualification, not about hiding the capability. The same reading resolves
+  the `live-artifact` question: PRODUCT.md item 4 says *"changed files and/or
+  diffs"*, so running or published output is not change inspection and does
+  not satisfy item 4 on its own — though it does count under item 6 via
+  `result.observe`. That followed from the accepted wording and needed no new
+  product decision.
 
 ### F12 — `unknown` entitlement was declared but never defined
 
@@ -396,6 +401,25 @@ ADR-0006 was committed with `**Status:** accepted` while sitting on an unmerged
 branch. [`.ecc/skills/decisions.md`](../../.ecc/skills/decisions.md) requires
 *"Status is honest. `proposed` until it is actually in force."* It is now
 `proposed`, and the ADR index agrees. Nothing relied on it as settled.
+
+---
+
+## 4c. Consistency corrections from the second review pass
+
+Four internal inconsistencies remained after F11–F15. None changed the
+architecture; each was a place where one section had been updated and another
+had not.
+
+| # | Inconsistency | Correction |
+| :-- | :-- | :-- |
+| C1 | §3 still stated `effective = L1 ∧ L2 ∧ L3` — **boolean** notation over a layer §3.2 had just made **three-valued**. Under that formula `unknown` would silently evaluate as `false`, contradicting §3.2.1 and the §3.1 table. | §3 now defines a total `resolution(...)` function over L1 × L2 × L3 whose six outcomes match the §3.1 disposition table row for row, with a note that `unknown` must never be collapsed into either boolean value. |
+| C2 | §2 still described `ProviderRefusal` as carrying the provider's error *"verbatim"* — the exact wording F15 removed from §8. | §2 now says it carries provider **semantics unaltered** in a **sanitized presentation**, pointing at §8.1/§8.2. |
+| C3 | `live-artifact` was left as an open product question, but PRODUCT.md already answers it. | Resolved from the accepted wording: item 4 says *"changed files and/or diffs"*, so running or published output is **not** change inspection and does not satisfy item 4 alone. It still counts under **item 6** via `result.observe`. No new product decision was needed; contract §5.5.1 and §11 updated. |
+| C4 | ARCHITECTURE.md listed ADR-0006 under *"decisions — decided"* and called first-provider selection *"now unblocked"* in three places, while the ADR is `proposed`. | ADR-0006 moved to a **"proposed, not yet in force"** section; the open-decisions row now reads **"blocked pending acceptance of ADR-0006"**; ROADMAP, README, contract §11 and ADR-0006's own follow-ups agree. The reasoning: ADR-0005's precondition is a *validated contract*, and a contract whose structure is still `proposed` is not yet settled. |
+
+C4 is the one with teeth. Marking an ADR `proposed` is not enough if the
+surrounding documents keep describing its consequences as already in force —
+the status field becomes decoration.
 
 ---
 
@@ -495,10 +519,13 @@ ordinary English prose such as "the rest of the loop".
   bounded by the accepted product requirements it exists to realize, not
   narrowed by them.
 - **No provider is selected, ranked, scored or recommended by this document.**
-  First-provider selection is a separate decision, now unblocked and already
-  tracked by **[Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8)**,
-  using the Product Fit and Integration Legitimacy gates in
-  [PRODUCT.md](../PRODUCT.md).
+  First-provider selection is a separate decision belonging to
+  **[Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8)**, using
+  the Product Fit and Integration Legitimacy gates in
+  [PRODUCT.md](../PRODUCT.md). It remains **blocked** until
+  [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md)
+  is accepted, because ADR-0005's precondition is a validated contract and this
+  contract's structural decision is still `proposed`.
 
 ### 6.1 What this validation does *not* establish
 
