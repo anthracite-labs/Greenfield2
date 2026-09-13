@@ -13,7 +13,7 @@ The defining authority rule is:
 
 > **Greenfield2 owns no provider development state. The connected provider remains authoritative for provider-owned resources, capabilities, runtime, sessions, files, artifacts, actions, lifecycle, entitlements, errors, approvals and results that Greenfield2 exposes.**
 
-For MVP, Greenfield2 proves the model with one user-supplied full-stack provider. Architecture may now evaluate the first provider and implementation alternatives, but none is selected merely by entering this phase.
+For MVP, Greenfield2 proves the model with one user-supplied full-stack provider. Architecture must first define and validate Greenfield2's provider-neutral capability boundary across materially different provider shapes; only then may it select the first proving provider. No provider is selected merely by being a research or validation candidate.
 
 Read in this order when orienting to the repository:
 
@@ -150,4 +150,4 @@ The foundation gate remains authoritative. A future application stack adds its o
 
 ## Current work
 
-Lifecycle transition is tracked in **Issue #6**. Architecture is now the active phase on this branch: the product definition is fixed unless amended through review, no provider or stack has been selected, and `ALLOW_APP_STACK=0` continues to block application implementation. The next Architecture work should evaluate the first provider and implementation alternatives through dedicated issues and ADRs rather than inheriting a choice from VibeFlow, Replit, Happier, or other research.
+Architecture work is tracked in **Issue #9**. ADR-0005 records the provider-contract-first rule: define and validate the provider-neutral capability boundary across at least three materially different provider shapes before selecting the first implementation provider. Jules, Cursor, Replit, GitHub Copilot, VibeFlow, Happier and other research are evidence inputs only; none defines Greenfield2 or is selected by appearing in the research set. `ALLOW_APP_STACK=0` continues to block application implementation.
