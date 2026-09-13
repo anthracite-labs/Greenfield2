@@ -57,15 +57,34 @@ Architecture must preserve these reviewed product boundaries unless a separate p
 
 The capability contract is **not** a universal Greenfield2 resource model. It describes what Greenfield2 can discover, ask, observe or invoke through a provider adapter while leaving the underlying resource identity, terminology, lifecycle and state provider-native.
 
-The contract must keep three questions separate:
+**Status: steps 1–3 are complete.** The contract is recorded as
+[the provider capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md)
+v1.0, its structural shape is decided by
+[ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md),
+and it was validated against four materially different provider shapes with ten
+recorded revisions in
+[the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md). Step 4 —
+first-provider selection — is therefore **unblocked and still open**, and remains
+a separate decision.
 
-- **Provider capability:** does this provider expose the capability through a supported external-client surface?
-- **Connected-account entitlement:** is this particular user's provider account legitimately authorized/entitled to use it?
-- **Greenfield2 capability support:** does Greenfield2 have a validated UI/surface for the exposed capability?
+The contract must keep three questions separate, and v1.0 models them as three independently-sourced layers:
 
-Transport is also adapter-local. REST, MCP, SDK, SSE, WebSocket, webhook or polling must not become core Greenfield2 semantics merely because one provider uses them.
+- **L1 — Provider capability:** does this provider expose the capability through a supported external-client surface?
+- **L2 — Connected-account entitlement:** is this particular user's provider account legitimately authorized/entitled to use it right now? Tri-state, because several providers expose no entitlement endpoint at all and `unknown` must not be rendered as denial.
+- **L3 — Greenfield2 capability support:** does Greenfield2 have a validated UI/surface for the exposed capability? Recorded per provider capability, never inferred from L1 or L2.
 
-Before first-provider selection, validation must include at least three materially different provider shapes. The current research set includes Jules, Cursor and Replit, with GitHub Copilot as a useful fourth stress case. Those names are validation evidence only; none is selected or privileged by this rule.
+Each layer failing has a different remedy for the user, so the three must stay distinguishable: not offered on this provider, not available for this account, and available but requiring native-provider handoff.
+
+Transport is also adapter-local. REST, MCP, SDK, SSE, WebSocket, webhook or polling must not become core Greenfield2 semantics merely because one provider uses them; the contract declares an update-delivery mode per capability and bans transport vocabulary above the adapter boundary.
+
+The validated set was Jules, Cursor, Replit and GitHub Copilot. Those names are validation evidence only; none is selected, ranked or privileged by having been tested, and none may be inherited as the first provider without the separate selection decision.
+
+## Application Architecture decisions — decided
+
+| Area | Decision | Recorded in |
+| :-- | :-- | :-- |
+| Provider-contract-first sequencing | Define and validate the provider capability contract before selecting the first provider. | [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md) |
+| Provider capability contract | A declared capability manifest over opaque provider-native handles, resolved through three independently-sourced availability layers. Validated against four materially different provider shapes; ten revisions recorded. | [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md), [contract v1.0](architecture/PROVIDER_CAPABILITY_CONTRACT.md), [validation record](architecture/PROVIDER_SHAPE_VALIDATION.md) |
 
 ## Application Architecture decisions — currently open
 
@@ -73,10 +92,9 @@ No item in this section is selected merely by being listed.
 
 | Area | Architecture question | Decision vehicle |
 | :-- | :-- | :-- |
-| Provider capability contract | What provider-neutral capability/operation boundary lets Greenfield2 expose provider truth without inventing universal provider resources? | Issue #9 + ADR-0005; validate against multiple provider shapes before provider selection |
-| First provider | After contract validation, which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? | Separate provider-selection decision; ADR if the choice creates durable coupling |
+| First provider | **Now unblocked.** Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? The validation set is evidence only and must not be inherited as the answer. | Separate provider-selection decision using the Product Fit + Integration Legitimacy gates; ADR if the choice creates durable coupling |
 | Client/application stack | Which approach best supports phone-first and larger-screen surfaces while respecting the repository constraints? | Application-stack ADR |
-| Provider boundary | What adapter responsibilities keep provider-native semantics authoritative without duplicating provider state? | Architecture issue / ADR if durable |
+| Provider boundary | Contract-level adapter obligations are fixed by [the capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md) §9. What remains is the code-level adapter interface, which needs a stack. | Architecture issue after the application-stack ADR |
 | Identity/auth | How does Greenfield2 Account connect to provider authorization while keeping entitlement distinct? | Security/Architecture review + ADR if durable |
 | Persistence/cache | What minimum Greenfield2-owned persistence is actually required for account, connection, preferences and opaque references? | Data Architecture ADR if durable |
 | Reconnect/events | Which provider-supported event, polling or refresh patterns are valid for the selected provider? | Provider-specific Architecture decision |
@@ -144,6 +162,7 @@ branch → tests → PR → CI → ChatGPT review → merge
 | `config/main-ruleset.json` | Portable branch-protection intent | Apply itself; contain instance ids |
 | `docs/PRODUCT.md` | Reviewed product definition and Architecture constraints | Choose technical implementation |
 | `docs/DOMAIN.md` | Minimal Greenfield2-owned product vocabulary | Normalize provider-native resources into Greenfield2 ownership |
+| `docs/architecture/` | Detailed Architecture working documents behind specific decisions | Select a stack, transport or provider; stand in for an ADR |
 | `docs/MEMORY.md` | Durable cross-session memory | Replace ADRs or PR descriptions |
 | `docs/decisions/` | Durable trade-off records | Track task state |
 | `docs/FACTORY.md` | Instantiation and admin checklist | Automate GitHub administration |
@@ -199,7 +218,11 @@ See [ARENA.md](ARENA.md) for the concise, generic harness reference and the re-v
 - [DOMAIN.md](DOMAIN.md) — accepted product vocabulary and authority semantics
 - [ROADMAP.md](ROADMAP.md) — lifecycle stages
 - [SECURITY.md](SECURITY.md) — repository security floor; application threat model evolves with Architecture
+- [architecture/](architecture/README.md) — detailed Architecture working documents
+- [architecture/PROVIDER_CAPABILITY_CONTRACT.md](architecture/PROVIDER_CAPABILITY_CONTRACT.md) — the provider-neutral capability contract
+- [architecture/PROVIDER_SHAPE_VALIDATION.md](architecture/PROVIDER_SHAPE_VALIDATION.md) — multi-provider validation and revision log
 - [decisions/](decisions/README.md) — decision record index
 - [decisions/0005-provider-contract-before-provider-selection.md](decisions/0005-provider-contract-before-provider-selection.md) — provider-contract-first Architecture decision
+- [decisions/0006-capability-manifest-and-three-layer-availability.md](decisions/0006-capability-manifest-and-three-layer-availability.md) — capability-manifest structural decision
 - [FACTORY.md](FACTORY.md) — instantiation and repository-admin reference
 - [../.ecc/UPSTREAM.md](../.ecc/UPSTREAM.md) — ECC provenance and omissions

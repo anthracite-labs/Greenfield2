@@ -161,3 +161,69 @@ application stack locked until the normal Architecture/ADR transition.
 **Verified:** GitHub Actions run `34749346800` on PR #10 completed successfully on the pre-memory head `e54a46bd7a69854986c493e20a98ba22c377ac47`. `Foundation gate` ran `bash scripts/verify.sh` and reported `phase: architecture, allow_app_stack=0`, `RESULT: PASS — 17 passed, 0 failed, 1 skipped`; AgentShield scanned zero Claude-config files and was explicitly advisory. The same job ran `bash scripts/selftest.sh` and reported `SELFTEST: PASS — 128 cases behaved as asserted`. `Independent checks` completed successfully, including `Confirm no application stack was introduced`. A local clone/verification attempt failed before checkout because the tool container could not resolve `github.com`; local verification is not claimed. Before the branch was created, an attempted content-identical README write accidentally omitted the branch parameter and created direct-main commit `c65745def6a4a61e6bd52622c5501b5f8d9bf9dd`; GitHub reports `diff: null` and `files: null`, and the README blob SHA remained unchanged. No repository content changed in that commit; the history is preserved rather than rewritten. This memory append changes the PR head and therefore requires a fresh CI run before review readiness is final.
 **Learned:** Selecting a provider before defining the provider boundary creates vendor-shaping risk even when the provider is described as only an MVP proving slice. Greenfield2's safer order is contract → heterogeneous provider validation → contract revision → provider selection → provider-specific adapter. The process incident also confirms branch parameters must be explicit on every GitHub contents write; a content-identical main commit is still a workflow violation even when it has no diff.
 **Next:** Confirm the post-memory PR head passes GitHub Actions, verify the final diff keeps this memory change append-only, update PR #10 with final conformance/verification evidence, and mark it ready for independent review. Keep Issue #9 open for the actual capability-contract definition and multi-provider validation; do not select a provider or enable implementation in this PR.
+
+## 2026-09-13 — Provider capability contract defined and validated
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`. PR #10 had already
+merged ADR-0005 and the sequencing docs, satisfying only acceptance criterion 1
+and deliberately leaving Issue #9 open for the contract itself.
+
+**Did:** Defined the provider-neutral capability contract as
+`docs/architecture/PROVIDER_CAPABILITY_CONTRACT.md` v1.0 — capability catalogue
+phrased as provider-neutral questions, a capability manifest as the contract's
+root, opaque provider-native handles, three independently-sourced availability
+layers (provider capability / account entitlement / Greenfield2 UI support),
+declared update-delivery modes, adapter obligations, and ten anti-leakage
+prohibitions with a reproducible audit. Validated it against four materially
+different provider shapes in `docs/architecture/PROVIDER_SHAPE_VALIDATION.md`
+(Google Jules, Cursor Cloud Agents, Replit MCP, GitHub Copilot), recording ten
+revisions F1–F10. Recorded the structural choice as ADR-0006. Added
+`docs/architecture/README.md`, indexed ADR-0006, and aligned
+`docs/ARCHITECTURE.md` (contract now in a "decided" table; first-provider row
+marked unblocked), `docs/ROADMAP.md` (two checkboxes ticked) and `README.md`.
+No provider, transport, framework, database, auth implementation, hosting target
+or UI technology was selected. `config/project.env` was not touched. No
+`.ecc/**`, `scripts/**` or `.github/**` file was modified.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`; the skips were `shell_lint` (shellcheck absent locally; CI runs it)
+and `agentshield` (0 Claude-config files, advisory). `bash scripts/selftest.sh`
+→ `SELFTEST: PASS — 128 cases behaved as asserted`. `links` resolved 153
+relative links across the enlarged doc set. The two anti-leakage audits in the
+contract were executed, not just written: audit A returned no matches (exit 1);
+audit B returned exactly 4 matches, all inside the sections that state the
+prohibition. Sandbox egress to every vendor documentation host failed at the TLS
+handshake (`curl https://jules.google/` → `SSL_ERROR_SYSCALL`), so provider
+evidence came from the platform-side fetch/search tools against primary provider
+documentation; each source is cited with its access date in the validation
+record. No provider API was called.
+
+**Learned:** Three environment traps worth recording. (1) `PyYAML` is absent in
+the sandbox, so `workflows_yaml` SKIPs and `selftest.sh` genuinely FAILS on
+`workflows_yaml/corrupted` — that failure is real, not cosmetic, and is fixed by
+`pip install --break-system-packages PyYAML` (plain `pip install` is refused
+under PEP 668). (2) `npm install -g shellcheck` is a trap: it installs a shim
+that cannot download the real binary here (`unable to verify the first
+certificate`), and because `verify.sh` only tests `command -v shellcheck`, the
+broken shim turns an honest SKIP into a false FAIL across all five foundation
+scripts. Uninstall it rather than trusting that FAIL. (3) The GitHub token
+available here can read issues and write contents/PRs but cannot comment on
+issues (`POST /issues/9/comments` → 403 "Resource not accessible by integration"),
+so the Issue #9 plan went into the PR body instead, as `planning.md` permits.
+
+On the substance: every apparent universal in the first contract draft turned
+out to be a majority case. Work items, diffs, approvals, results, streaming and
+entitlements each looked provider-neutral until a shape arrived that lacked them
+or meant something different — Replit exposes no work item at all, and Cursor
+changed its own resource topology and identifier format between `v0` and `v1`.
+The durable lesson is that a contract validated without revisions is suspicious,
+not successful.
+
+**Next:** First-provider selection is now **unblocked and still open**; it is a
+separate decision using the Product Fit + Integration Legitimacy gates in
+`docs/PRODUCT.md`, and the validation set must not be inherited as the answer.
+Re-verify the dated provider profiles before relying on any specific endpoint in
+that decision — all four surfaces are pre-stable. Independent review should look
+hardest at the §4.3 presentation liveness hint, which is the one place a shadow
+state machine could start, and at whether `Absent` is honoured everywhere rather
+than silently coerced. Do not self-merge.

@@ -51,16 +51,22 @@ transition into Architecture.
 Architecture is the active Greenfield2 lifecycle stage.
 
 - [x] Open Architecture issues for the decisions that actually need to be made.
-- [ ] Define Greenfield2's provider-neutral capability contract before selecting
+- [x] Define Greenfield2's provider-neutral capability contract before selecting
       the first provider; this is required by
       [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md).
-- [ ] Validate that contract against at least three materially different provider
+      Recorded as
+      [the provider capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md)
+      v1.0, structurally decided by
+      [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md).
+- [x] Validate that contract against at least three materially different provider
       shapes and revise it where the comparison exposes vendor leakage, false
-      universality or lowest-common-denominator loss.
-- [ ] Only after provider-contract validation, evaluate and select the first
-      provider against the accepted product-fit and integration-legitimacy gates;
-      do not inherit a provider choice from Discovery references or Architecture
-      research candidates.
+      universality or lowest-common-denominator loss. Four shapes validated with
+      ten recorded revisions — see
+      [the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md).
+- [ ] Now unblocked, and still separate: evaluate and select the first provider
+      against the accepted product-fit and integration-legitimacy gates. Do not
+      inherit a provider choice from Discovery references, from the validation
+      set, or from Architecture research candidates.
 - [ ] Evaluate real implementation alternatives; record durable choices as ADRs
       in [decisions/](decisions/README.md) with costs and rejected alternatives
       stated.

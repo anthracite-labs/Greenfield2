@@ -24,6 +24,7 @@ App-Factory, followed by Greenfield2 project Architecture decisions.
 | [0003](0003-flat-skill-files.md) | Flat per-task workflow files instead of upstream `SKILL.md` directories | accepted | 2026-09-06 |
 | [0004](0004-lifecycle-config-stack-guard.md) | Project lifecycle config replaces the hard-coded no-app-stack guard | accepted | 2026-09-06 |
 | [0005](0005-provider-contract-before-provider-selection.md) | Define the provider capability contract before selecting the first provider | accepted | 2026-09-13 |
+| [0006](0006-capability-manifest-and-three-layer-availability.md) | Model the provider boundary as a declared capability manifest with three-layer availability | accepted | 2026-09-13 |
 
 The ADR that records a project's **implementation stack** is referenced by
 `STACK_DECISION_ADR` in [`../../config/project.env`](../../config/project.env),
