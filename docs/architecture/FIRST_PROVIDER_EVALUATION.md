@@ -20,7 +20,7 @@
 | **Replit MCP** | **PARTIAL/FAIL — App-shaped (no work item), 3-tool surface create/update/ask, replUrl result, no files/diffs/patch/remote-reference, no structured progress/activity event stream (but ask_question can return build-status/progress via discussion mode), no approvals** | **PASS** — official MCP server https://replit-mcp.com/server/mcp Streamable HTTP, OAuth protected-resource discovery, OAuth 2.1 + PKCE per auth section, Free/Core/Pro/Enterprise accounts | **Watch / fails PRODUCT.md item 4 (changed files/diffs) — Gate 1 PARTIAL/FAIL** |
 | **OpenAI Codex App Server + hosted Codex** | **TECHNICALLY STRONG for local execution** — threads/turns/items, streaming, diffs, approvals, file changes; hosted third-party path not documented | **UNVERIFIED for third-party use of OpenAI-hosted runtime** — App Server runs on your own infra; running it in Greenfield2-owned compute violates MVP non-goal of no Greenfield2 runtime | **Validation/partner track** |
 
-No additional candidate was found that materially passes both gates better than the two finalists on current first-party evidence.
+No additional candidate was found that materially passes both gates better than the three finalists (Jules, Cursor, Copilot) on current first-party evidence.
 
 ---
 
@@ -320,7 +320,7 @@ No additional candidate was found that materially passes both gates better than 
 - Requires GraphQL-Features header for issue assignment.
 - Model list evolves; cost control via model parameter.
 - Audit endpoint GET returns full agent config (MCP servers, tools, Actions workflow policy, firewall rules) — useful for security/platform teams.
-- Combining task API + SDK + PR APIs as one contract would be false completeness.
+- Do not combine the separate Copilot SDK with the Agent Tasks / issue / PR surfaces merely to manufacture capabilities the supported cloud-agent workflow does not expose. Ordinary supported GitHub Agent Tasks, issue/GraphQL, and PR APIs are part of the provider's documented task/issue/PR workflow and are not false completeness merely because the workflow spans multiple official GitHub surfaces.
 
 ### First-party evidence URLs and verification date
 - https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api — states "Copilot cloud agent is available for all paid Copilot plans", starting/listing/checking status, issues API with GraphQL-Features header, auth user-to-server only, continuing work on PR by mentioning "@copilot" in comment + follow-up instructions — fetched 2026-09-13, re-verified 2026-09-13 shows all-paid-plans wording and @copilot continuation
@@ -585,7 +585,7 @@ Technically would pass Gate 1 if self-hosted, but MVP requires provider-hosted e
 ## Additional candidates considered
 
 - **OpenAI Codex CLI, VS Code extension, JetBrains, Xcode integrations** — same hosting issue as App Server; no hosted third-party REST API.
-- **Any other provider** — No additional candidate found on current evidence that materially passes both gates better than Jules/Cursor finalists. Search for "hosted coding agent API third party" returns same set (Jules, Cursor, Copilot, Replit, Codex). No new entrant with richer external surface and legitimate entitlement documented.
+- **Any other provider** — No additional candidate found on current evidence that materially passes both gates better than Jules/Cursor/Copilot finalists. Search for "hosted coding agent API third party" returns same set (Jules, Cursor, Copilot, Replit, Codex). No new entrant with richer external surface and legitimate entitlement documented beyond the three finalists.
 
 ---
 
