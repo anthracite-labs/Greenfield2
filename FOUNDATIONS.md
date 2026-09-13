@@ -1,10 +1,10 @@
 # Greenfield2 Foundations
 
-**Status:** Discovery constitution for App 1 with a product-owner definition under review in Issue #4.  
-**Lifecycle:** `PROJECT_PHASE=discovery`.  
+**Status:** Product constitution for App 1; reviewed Discovery definition accepted in PR #5.  
+**Lifecycle:** `PROJECT_PHASE=architecture`.  
 **Implementation authority:** none yet; `ALLOW_APP_STACK=0` remains in force.
 
-This file defines the project-level frame for Greenfield2 Discovery. It does **not** replace or weaken the App-Factory / ECC-on-Arena engineering foundation. The engineering foundation defines how work is performed; this file records the evidence hierarchy, product boundary and promotion rules that Discovery must respect.
+This file defines the project-level frame Greenfield2 carries from Discovery into Architecture. It does **not** replace or weaken the App-Factory / ECC-on-Arena engineering foundation. The engineering foundation defines how work is performed; this file records the accepted product boundary, evidence hierarchy and promotion rules Architecture must respect.
 
 ## 1. Fresh-product rule
 
@@ -17,11 +17,11 @@ Prior work is evidence, not inheritance:
 - **Happier** is an OSS architecture/feasibility reference for cross-device Agent supervision, provider capability catalogs, reconnect behavior and rich development surfaces. Greenfield2 does not inherit Happier's account, relay, daemon, session, persistence or orchestration authority.
 - **Other OSS/upstream research** is evaluated under the existing engineering philosophy: ADOPT maintained standards/dependencies where they fit, HARVEST useful patterns/components behind Greenfield2-owned boundaries, and REJECT code or dependencies that fail product, security, maintenance or licensing review.
 
-Nothing becomes a Greenfield2 requirement merely because VibeFlow specified it, Replit demonstrates it, Happier implements it, or another OSS project contains it.
+Nothing becomes a Greenfield2 requirement or architecture decision merely because VibeFlow specified it, Replit demonstrates it, Happier implements it, or another OSS project contains it.
 
-## 2. Discovery product outcome
+## 2. Reviewed Discovery product outcome
 
-The product-owner Discovery outcome is:
+The reviewed Greenfield2 product definition is:
 
 > **Greenfield2 is a mobile-first universal software-development interface for technical builders. It connects to a user's supported software-development provider account, discovers what that provider officially exposes, and presents those capabilities and resources through one coherent Greenfield2 interface.**
 
@@ -33,7 +33,7 @@ For MVP, Greenfield2 proves this model with one user-supplied full-stack provide
 
 The detailed product definition, V1 scope, non-goals, success measures and constraints live in [`docs/PRODUCT.md`](docs/PRODUCT.md). The minimal accepted product vocabulary and ownership semantics live in [`docs/DOMAIN.md`](docs/DOMAIN.md).
 
-The repository remains in `PROJECT_PHASE=discovery` until the product definition is independently reviewed and a separate reviewed lifecycle transition is made.
+PR #5 completed the reviewed Discovery promotion. Issue #6 moves only the repository lifecycle into Architecture; it does not select a provider, stack, protocol, framework, database, auth implementation, hosting target or UI technology.
 
 ## 3. Foundation/core engineering system is protected
 
@@ -43,7 +43,7 @@ Greenfield2 is built on App-Factory, a repository-owned ECC-on-Arena adaptation.
 
 GitHub is the durable source of truth. The committed verification gate and negative tests remain the evidence standard.
 
-Product work must not casually rewrite the engineering foundation. The following are protected foundation surfaces for ordinary project work:
+Product and Architecture work must not casually rewrite the engineering foundation. The following are protected foundation surfaces for ordinary project work:
 
 - `.ecc/**` — ECC rules, skills, roles, provenance and licence material;
 - `FOUNDATION_VERSION`;
@@ -52,19 +52,20 @@ Product work must not casually rewrite the engineering foundation. The following
 - `config/main-ruleset.json`;
 - the foundation lifecycle/no-stack mechanism itself.
 
-A future change to those surfaces requires a separate foundation/ECC issue and must be justified as an engineering-system change, not smuggled into product work.
+A future change to those surfaces requires a separate foundation/ECC issue and must be justified as an engineering-system change, not smuggled into product or Architecture work.
 
-## 4. Project-owned product surfaces
+## 4. Project-owned product and Architecture surfaces
 
 The following are expected to evolve through the Greenfield2 lifecycle:
 
 - `README.md` — project identity and developer entry point;
 - this `FOUNDATIONS.md` — project constitution and evidence hierarchy;
 - `config/project.env` — legitimate lifecycle state;
-- `docs/PRODUCT.md` — product problem, users, jobs, scope, non-goals, trust/data constraints and success;
+- `docs/PRODUCT.md` — accepted product problem, users, jobs, scope, non-goals, trust/data constraints and success;
 - `docs/DOMAIN.md` — accepted product vocabulary, ownership boundaries and state meanings;
-- project-specific additions to `docs/SECURITY.md` and `docs/ARCHITECTURE.md` when the lifecycle permits them;
-- ADRs under `docs/decisions/` once durable technical choices are actually being made.
+- `docs/ARCHITECTURE.md` — Architecture alternatives, boundaries and accepted technical structure as decisions emerge;
+- project-specific additions to `docs/SECURITY.md` as Architecture makes concrete trust-boundary decisions;
+- ADRs under `docs/decisions/` for durable technical choices.
 
 Foundation text may be extended for the project, but foundation controls and provenance are preserved rather than replaced.
 
@@ -77,13 +78,13 @@ Use the following order when sources disagree:
 3. **Verified VibeFlow evidence** — target/baseplate material to reuse only when it survives fresh scrutiny.
 4. **Verified Replit behavioral evidence** — clean-room reference/benchmark input.
 5. **Verified OSS/upstream evidence**, including Happier — standards, maintained dependencies and harvest/reference candidates at pinned revisions when promoted.
-6. **Inference** — useful for forming questions, never silently promoted to fact or requirement.
+6. **Inference** — useful for forming questions, never silently promoted to fact, requirement or architecture choice.
 
 A later source does not automatically outrank an accepted Greenfield2 decision. Changing durable truth requires an explicit reviewed amendment.
 
 ## 6. Discovery questions resolved by the product definition
 
-Discovery has explicitly established, at the product-owner level:
+Discovery explicitly established:
 
 - the primary user: technical builders already using an eligible agentic software-development provider;
 - the job to be done: build and continue real software wherever the user is through one coherent interface over the provider they already use;
@@ -103,7 +104,7 @@ These answers are recorded in `docs/PRODUCT.md` and `docs/DOMAIN.md`. Architectu
 
 ## 7. Clean-room and source-reuse boundary
 
-Behavioral observations may inform independently written requirements, acceptance tests and later architecture decisions. Greenfield2 must not copy proprietary implementation code, private protocols, prompts, credentials, protected assets, branding or trademarks from Replit or any other closed product.
+Behavioral observations may inform independently written requirements, acceptance tests and architecture decisions. Greenfield2 must not copy proprietary implementation code, private protocols, prompts, credentials, protected assets, branding or trademarks from Replit or any other closed product.
 
 Open-source code may be used only under its actual licence and the repository's normal dependency/harvest review process. Visibility on GitHub is not permission by itself.
 
@@ -129,12 +130,12 @@ implementation mission / issue
 verified change + independent review
 ```
 
-Issue #4 is the review anchor for promoting the current product-owner Discovery synthesis into repository truth.
+PR #5 completed the product-definition promotion. Issue #6 performs the separate lifecycle transition into Architecture.
 
-No protocol, framework, database, auth system, workflow engine, workspace provider, Agent, model provider, deployment provider or harvested codebase is approved by this Discovery definition.
+No protocol, framework, database, auth system, workflow engine, workspace provider, Agent, model provider, deployment provider or harvested codebase is approved merely by entering Architecture.
 
-## 9. Discovery exit condition
+## 9. Architecture entry and implementation guard
 
-Greenfield2 may move to `PROJECT_PHASE=architecture` only when the product definition in `docs/PRODUCT.md` and ownership vocabulary in `docs/DOMAIN.md` are independently reviewed and accepted as sufficiently complete for Architecture to answer **how** without reopening basic questions about **what**, **for whom**, and **why**.
+The Discovery exit condition has been satisfied by the reviewed product definition in `docs/PRODUCT.md` and ownership vocabulary in `docs/DOMAIN.md`. Architecture may now answer **how** without reopening basic questions about **what**, **for whom**, and **why**.
 
-The lifecycle transition itself is separate reviewed work. `ALLOW_APP_STACK=0` remains in force throughout Architecture until the normal accepted application-stack ADR and implementation transition satisfy the machine-checked lifecycle rules.
+`ALLOW_APP_STACK=0` remains in force throughout Architecture. Architecture may research alternatives and accept ADRs, but application-stack artifacts remain rejected until an application-stack ADR is accepted and a separate reviewed `PROJECT_PHASE=implementation` transition sets the matching lifecycle state.

@@ -1,9 +1,9 @@
 # Greenfield2
 
-**Status:** App 1 Discovery; product definition is under repository review in Issue #4.  
+**Status:** App 1 Architecture; the reviewed Discovery product definition is canonical.  
 **Engineering foundation:** App-Factory `0.1.0`, using the repository-owned ECC-on-Arena adapter derived from ECC v2.2.0 (MIT).
 
-Greenfield2 is an instantiated application repository built on the App-Factory engineering foundation. The product definition has been completed at the product-owner Discovery level, but the authoritative lifecycle remains `PROJECT_PHASE=discovery` until the reviewed promotion and a separate lifecycle transition are accepted.
+Greenfield2 is an instantiated application repository built on the App-Factory engineering foundation. Discovery is complete and the authoritative lifecycle is now `PROJECT_PHASE=architecture`; application implementation remains locked while Architecture evaluates and records technical choices through ADRs.
 
 ## Product in one paragraph
 
@@ -13,7 +13,7 @@ The defining authority rule is:
 
 > **Greenfield2 owns no provider development state. The connected provider remains authoritative for provider-owned resources, capabilities, runtime, sessions, files, artifacts, actions, lifecycle, entitlements, errors, approvals and results that Greenfield2 exposes.**
 
-For MVP, Greenfield2 proves the model with one user-supplied full-stack provider. Provider selection and application Architecture come after Discovery review.
+For MVP, Greenfield2 proves the model with one user-supplied full-stack provider. Architecture may now evaluate the first provider and implementation alternatives, but none is selected merely by entering this phase.
 
 Read in this order when orienting to the repository:
 
@@ -22,8 +22,9 @@ Read in this order when orienting to the repository:
 3. [`FOUNDATIONS.md`](FOUNDATIONS.md) — product constitution, evidence hierarchy and protected-foundation boundary.
 4. [`config/project.env`](config/project.env) — machine-checked lifecycle state.
 5. [`docs/MEMORY.md`](docs/MEMORY.md) — append-only verified project memory.
-6. [`docs/PRODUCT.md`](docs/PRODUCT.md) — Discovery product definition.
+6. [`docs/PRODUCT.md`](docs/PRODUCT.md) — reviewed product definition and V1 boundary.
 7. [`docs/DOMAIN.md`](docs/DOMAIN.md) — minimal Greenfield2-owned vocabulary and provider-authority rules.
+8. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Architecture-stage scope, alternatives and engineering foundation.
 
 ## Reference model
 
@@ -32,7 +33,7 @@ Greenfield2 was defined using several references deliberately, without letting a
 - **VibeFlow** informs the interoperability/provider-neutral thesis and supported provider/client boundary.
 - **Replit research** is clean-room evidence for coherent mobile software-building interactions and capability completeness; it is not a clone specification.
 - **Happier** is an OSS architecture/feasibility reference for provider catalogs, cross-device supervision and reconnect patterns; its product/session authority is not inherited.
-- **Other OSS/upstream research** remains evidence or a later ADOPT/HARVEST/REJECT candidate until Architecture explicitly promotes it.
+- **Other OSS/upstream research** remains evidence or an ADOPT/HARVEST/REJECT candidate until Architecture explicitly promotes it through review.
 
 See [`FOUNDATIONS.md`](FOUNDATIONS.md) for the evidence and promotion rules.
 
@@ -58,13 +59,13 @@ The authoritative state is [`config/project.env`](config/project.env):
 
 ```text
 factory  →  discovery  →  architecture  →  implementation
-                ▲
-          Greenfield2 now
+                              ▲
+                        Greenfield2 now
 ```
 
-The Discovery product definition can support a move to Architecture only after repository review accepts it. A separate reviewed lifecycle change is then required.
+Discovery review is complete. Architecture may now evaluate real alternatives and record durable technical choices as ADRs, but `ALLOW_APP_STACK=0` remains active.
 
-During Discovery and Architecture, `ALLOW_APP_STACK=0` remains active. No application framework, database, auth scheme, hosting target, provider implementation or UI stack may be introduced merely because research suggests one. Those choices belong to the Architecture/ADR process, and application code remains locked until the implementation transition satisfies the repository gate.
+No application framework, database, auth implementation, hosting target, provider implementation, protocol, or UI stack may be introduced merely because research suggests one. Those choices belong to the Architecture/ADR process, and application code remains locked until the later implementation transition satisfies the repository gate.
 
 ## Engineering operating model — preserved from App-Factory
 
@@ -84,7 +85,7 @@ ECC-on-Arena repository adapter
 branch → tests → PR → CI → ChatGPT review → merge
 ```
 
-The App-Factory foundation defines **how** work is done. Product work does not rewrite the ECC skills, rules, roles, provenance or verification philosophy. Foundation changes require their own issue and review.
+The App-Factory foundation defines **how** work is done. Product and Architecture work do not rewrite the ECC skills, rules, roles, provenance or verification philosophy. Foundation changes require their own issue and review.
 
 ## What the foundation provides
 
@@ -120,9 +121,9 @@ FOUNDATION_VERSION         App-Factory foundation version
 .ecc/                      protected ECC-on-Arena adapter
 config/project.env         project identity, lifecycle and no-stack guard
 config/main-ruleset.json   portable branch-governance intent
-docs/PRODUCT.md            Discovery product definition and V1 boundary
+docs/PRODUCT.md            reviewed product definition and V1 boundary
 docs/DOMAIN.md             minimal product vocabulary and authority semantics
-docs/ARCHITECTURE.md       engineering foundation; application architecture later
+docs/ARCHITECTURE.md       Architecture-stage alternatives + engineering foundation
 docs/SECURITY.md           foundation security floor; application extensions later
 docs/ROADMAP.md            lifecycle sequencing
 docs/MEMORY.md             append-only verified project memory
@@ -149,4 +150,4 @@ The foundation gate remains authoritative. A future application stack adds its o
 
 ## Current work
 
-Product-definition promotion is tracked in **Issue #4**. This issue updates only Discovery-owned documentation and keeps `PROJECT_PHASE=discovery` / `ALLOW_APP_STACK=0` unchanged. After independent review accepts the product definition, the next lifecycle step is a separate proposal to enter Architecture—not application implementation.
+Lifecycle transition is tracked in **Issue #6**. Architecture is now the active phase on this branch: the product definition is fixed unless amended through review, no provider or stack has been selected, and `ALLOW_APP_STACK=0` continues to block application implementation. The next Architecture work should evaluate the first provider and implementation alternatives through dedicated issues and ADRs rather than inheriting a choice from VibeFlow, Replit, Happier, or other research.

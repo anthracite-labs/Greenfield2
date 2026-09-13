@@ -1,9 +1,9 @@
 # Product
 
-**Status:** Product-owner Discovery definition accepted for review in Issue #4.  
-**Lifecycle:** `PROJECT_PHASE=discovery` remains authoritative until a separate reviewed phase transition.
+**Status:** Reviewed Discovery product definition accepted in PR #5.  
+**Lifecycle:** `PROJECT_PHASE=architecture`; Architecture may decide how to realize this product without silently redefining it.
 
-Greenfield2 is App 1, treated as a fresh product. This document records the product definition reached through Discovery. It does not select an application stack, provider implementation, protocol, database, auth scheme, hosting target, or UI framework.
+Greenfield2 is App 1, treated as a fresh product. This document records the reviewed product definition reached through Discovery. It does not select an application stack, provider implementation, protocol, database, auth scheme, hosting target, or UI framework.
 
 ## Product definition
 
@@ -72,7 +72,7 @@ Greenfield2 is **mobile-first, not mobile-only**.
 
 The phone is the priority product surface and must support meaningful software-building work rather than being only a notification or remote-control companion. Greenfield2 should present one adaptive product experience across phone and larger screens.
 
-Discovery does not decide whether those surfaces are implemented as native apps, web, hybrid shells, or another technical approach. That belongs to Architecture.
+Discovery did not decide whether those surfaces are implemented as native apps, web, hybrid shells, or another technical approach. That belongs to Architecture.
 
 ## MVP product boundary
 
@@ -92,7 +92,7 @@ MVP behavior is:
 
 Multiple providers and multiple accounts for the same provider are post-MVP.
 
-The first provider is an MVP proving slice, not Greenfield2's permanent definition. Discovery does not select that provider.
+The first provider is an MVP proving slice, not Greenfield2's permanent definition. Discovery did not select that provider; Architecture must evaluate candidates against the accepted product and integration gates.
 
 ### Minimum V1 capability and output set
 
@@ -236,7 +236,7 @@ Greenfield2 MVP does **not**:
 9. provision or resell provider services in MVP;
 10. maintain a central mirror/search index of provider content;
 11. require replacement of every feature in the provider's native application;
-12. choose the application stack, database, framework, hosting target or provider architecture during Discovery.
+12. treat an application stack, database, framework, hosting target or provider architecture as a Discovery decision.
 
 ## Success measures
 
@@ -250,13 +250,13 @@ MVP success is observed using both product value and interface reliability:
 - reliability of forwarded provider actions;
 - reliability and fidelity of provider state/error presentation.
 
-Discovery selects what should be observed; it does not invent numerical targets before implementation and real usage provide a basis for them.
+Discovery selected what should be observed; it did not invent numerical targets before implementation and real usage provide a basis for them.
 
 ## First-provider qualification
 
-Discovery does not select the first provider.
+Discovery did not select the first provider.
 
-After this product definition is accepted, candidate providers should be evaluated against two gates:
+Architecture evaluates candidate providers against two accepted gates:
 
 1. **Product fit:** the provider exposes enough supported capability to deliver the minimum V1 development loop.
 2. **Integration legitimacy:** the provider exposes a supported external-client interface and a legitimate entitlement/auth path for the required capabilities.
@@ -269,19 +269,19 @@ Greenfield2 may later support composition of user-selected capabilities such as 
 
 If Greenfield2 later owns composition/wiring configuration, that does not automatically make it authoritative for the provider-owned things being wired.
 
-This is direction, not MVP scope and not Architecture.
+This is direction, not MVP scope and not an Architecture decision by itself.
 
-## Discovery exit
+## Discovery completion and Architecture baseline
 
-This product definition answers the Discovery questions required by `FOUNDATIONS.md` and `docs/ROADMAP.md` at the product-owner level. The repository remains in `PROJECT_PHASE=discovery` until this definition is independently reviewed and a separate reviewed lifecycle transition is made.
+Discovery is complete: PR #5 promoted this reviewed product definition and the accepted ownership vocabulary in `docs/DOMAIN.md` into repository truth.
 
-Architecture must answer **how** without redefining the accepted **what, for whom and why**.
+`PROJECT_PHASE=architecture` means Architecture may now answer **how** while preserving the accepted **what, for whom and why**. Changes to the product definition still require explicit product-owner review; Architecture may not silently redefine the product to make a technical option easier.
 
 ## Related
 
-- [`../FOUNDATIONS.md`](../FOUNDATIONS.md) — Discovery constitution and evidence hierarchy
+- [`../FOUNDATIONS.md`](../FOUNDATIONS.md) — product constitution and evidence hierarchy
 - [DOMAIN.md](DOMAIN.md) — accepted minimal product vocabulary and ownership semantics
 - [ROADMAP.md](ROADMAP.md) — lifecycle sequencing
-- [ARCHITECTURE.md](ARCHITECTURE.md) — engineering foundation; application architecture later
+- [ARCHITECTURE.md](ARCHITECTURE.md) — active Architecture-stage work and engineering foundation
 - [MEMORY.md](MEMORY.md) — append-only verified project memory
-- [decisions/](decisions/README.md) — ADR structure for later durable technical choices
+- [decisions/](decisions/README.md) — ADR structure for durable technical choices
