@@ -5,7 +5,7 @@
 **Issue:** [#8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)
 **Contract:** [PROVIDER_CAPABILITY_CONTRACT.md](PROVIDER_CAPABILITY_CONTRACT.md) v1.1 (accepted), [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) four shapes, fifteen revisions.
 **Product gates:** [PRODUCT.md](../PRODUCT.md) minimum V1 loop (7 items) and Integration Legitimacy (supported external-client path + legitimate entitlement).
-**Verification date:** 2026-09-13 (UTC) — all first-party URLs fetched via platform fetch/search on this date; sandbox egress to vendor doc hosts fails TLS handshake (`curl https://jules.google/ → SSL_ERROR_SYSCALL`), so no provider API was called. Documentation-level validation only.
+**Verification date:** 2026-09-13 (UTC) — all first-party URLs fetched via platform fetch/search on this date; re-verified 2026-09-13 (UTC) for corrective pass (Replit MCP 8-tool surface, Copilot Business/Enterprise restriction, Cursor remote-reference, Jules lifecycle). Sandbox egress to vendor doc hosts fails TLS handshake (`curl https://jules.google/ → SSL_ERROR_SYSCALL`), so no provider API was called. Documentation-level validation only, no live MCP tools/list introspection exercised.
 **Decision rule:** Do not silently choose a winner. This document produces shortlist and recommendation; product owner and Greenfield2 review explicitly decide.
 
 ---
@@ -16,7 +16,7 @@
 | :--- | :--- | :--- | :--- |
 | **Google Jules** | **PASS** — all 7 V1 items via REST API: Session lifecycle, Activities (plan/progress/messages), inline-patch ChangeSet, opt-in plan approval, PR result, list/continue/reconnect | **PASS** — official REST API v1alpha, user-generated API key, provider-direct billing via Google AI Pro/Ultra, GitHub source connection via Jules GitHub App | **Finalist — best documented semantic match to V1 UI** |
 | **Cursor Cloud Agents** | **PASS, with one diff-surface caveat to validate in spike** — durable Agent + Runs, rich SSE tool stream, branch/PR result, follow-ups, resume via Last-Event-ID; change inspection is remote-reference (branch) not inline-patch; approval none exposed (required-if-exposed) | **PASS** — official Cloud Agents API v1 public beta, Basic + Bearer auth, user API key + service-account keys + sub-tokens, paid Cursor plan required, usage-priced | **Finalist — best provider-hosted workspace/runtime** |
-| **GitHub Copilot cloud agent** | **PARTIAL** — start/list/get tasks, PR result, remote-reference diffs via PR APIs, waiting_for_user; lacks rich transcript/tool/diff/approval surface in task API itself | **PASS** — official Agent Tasks REST API public preview, user-to-server tokens (PAT, OAuth, GitHub App user token), paid Copilot plans, explicit legitimacy | **Watch / not first-provider choice yet** |
+| **GitHub Copilot cloud agent** | **PARTIAL** — start/list/get tasks, PR result, remote-reference diffs via PR APIs, waiting_for_user; lacks rich transcript/tool/diff/approval surface in task API itself | **PASS with narrowed plan class** — official Agent Tasks REST API public preview, user-to-server tokens (PAT, OAuth, GitHub App user token, no installation tokens), **Business/Enterprise required for Start task API path** per REST reference (conflicts with how-to "all paid plans" for overall feature), explicit legitimacy | **Watch / not first-provider choice yet** |
 | **Replit MCP** | **PARTIAL** — App-shaped (no work item), create/update/publish, live public URL result, but no files/diffs, no progress/activity, no approvals exposed | **PASS** — official MCP server over Streamable HTTP, OAuth 2.1 + PKCE with protected-resource discovery, Free/Core/Pro/Enterprise accounts | **Watch / fails PRODUCT.md item 4 (changed files/diffs)** |
 | **OpenAI Codex App Server + hosted Codex** | **TECHNICALLY STRONG for local execution** — threads/turns/items, streaming, diffs, approvals, file changes; hosted third-party path not documented | **UNVERIFIED for third-party use of OpenAI-hosted runtime** — App Server runs on your own infra; running it in Greenfield2-owned compute violates MVP non-goal of no Greenfield2 runtime | **Validation/partner track** |
 
@@ -80,21 +80,22 @@ No additional candidate was found that materially passes both gates better than 
 - Continue via sendMessage when AWAITING_USER_FEEDBACK; otherwise new session.
 
 ### Known policy/terms constraints
-- API in alpha, experimental, may change specs, keys, definitions. At least one stable + one experimental version planned.
-- API key security: do not embed in public code; exposed keys auto-disabled.
-- Paid plans only for @gmail.com individual accounts; enterprise path not yet GA.
-- GitHub Sources must first be connected via Jules web app and GitHub App installation.
+- **Maturity:** API v1alpha, experimental, may change specs, keys, definitions. At least one stable + one experimental version planned. Pre-stable — re-verify before implementation. SessionState 9 values, activities 7 types, ChangeSet/patch inline, plan approval opt-in — all documented but subject to drift.
+- API key security: do not embed in public code; exposed keys auto-disabled. Max 3 keys, auth via x-goog-api-key header.
+- **Account/plan restrictions:** Paid plans only for @gmail.com individual accounts via Google AI Pro/Ultra; enterprise Workspace path not yet GA, interest form. Free 15 daily tasks (rolling 24h) 3 concurrent, Pro 100/15, Ultra 300/60. Task limits not shared in family. Age 18+ stricter than Google One.
+- **Auth:** User-generated API key, not OAuth; GitHub Sources must first be connected via Jules web app and GitHub App installation.
 - Repository/task oriented, not generic workspace; no always-on VM.
-- Age 18+ requirement; stricter than some Google One plans.
+- **Session lifecycle re-checked:** QUEUED → PLANNING → AWAITING_PLAN_APPROVAL (if requirePlanApproval) → IN_PROGRESS → AWAITING_USER_FEEDBACK (continuation via sendMessage) → PAUSED/FAILED/COMPLETED; activities cover planGenerated/planApproved/userMessaged/agentMessaged/progressUpdated/sessionCompleted/sessionFailed; messages via activities; plan generation/approval explicit; ChangeSet GitPatch baseCommitId/unidiffPatch inline-patch; output pullRequest; continuation via list/get/sendMessage; reconnect via polling snapshot.
+- **Not promoted merely because review favors it:** Finalist status based on semantic match to V1 UI (inline-patch + plan approval + activity stream), not review preference; still requires spike for GitHub source connection + API-key UX + poll latency.
 
 ### First-party evidence URLs and verification date
-- https://jules.google/docs/api/reference/ — Quickstart, auth, concepts — fetched 2026-09-13
-- https://jules.google/docs/api/reference/sessions/ — Create/List/Get/Delete/SendMessage/ApprovePlan — fetched 2026-09-13
-- https://jules.google/docs/api/reference/activities/ — List/Get Activities, types, artifacts — fetched 2026-09-13
-- https://jules.google/docs/api/reference/types/ — Session, SessionState, Activity, Artifact, ChangeSet, GitPatch — fetched 2026-09-13
-- https://jules.google/docs/usage-limits — Plans, daily tasks, concurrent tasks, upgrade path — fetched 2026-09-13
+- https://jules.google/docs/api/reference/ — Quickstart, auth x-goog-api-key header max 3 keys, concepts Source/Session/Activity, alpha experimental may change specs/keys/definitions, at least one stable + one experimental planned — fetched 2026-09-13, re-verified 2026-09-13
+- https://jules.google/docs/api/reference/sessions/ — Create/List/Get/Delete/SendMessage/ApprovePlan, SessionState 9 values QUEUED PLANNING AWAITING_PLAN_APPROVAL AWAITING_USER_FEEDBACK IN_PROGRESS PAUSED FAILED COMPLETED STATE_UNSPECIFIED, requirePlanApproval opt-in, automationMode AUTO_CREATE_PR, repoless supported — fetched 2026-09-13, re-verified 2026-09-13
+- https://jules.google/docs/api/reference/activities/ — List/Get Activities, Activity types planGenerated (plan id + steps[]), planApproved, userMessaged, agentMessaged, progressUpdated, sessionCompleted, sessionFailed, artifacts ChangeSet GitPatch baseCommitId/unidiffPatch/suggestedCommitMessage, bashOutput, media — fetched 2026-09-13, re-verified 2026-09-13
+- https://jules.google/docs/api/reference/types/ — Session, SessionState, AutomationMode, Activity, Artifact, ChangeSet, GitPatch, Source — fetched 2026-09-13, re-verified 2026-09-13
+- https://jules.google/docs/usage-limits — Plans Free 15 daily 3 concurrent, Pro 100/15, Ultra 300/60, model access Gemini 2.5 Pro / 3 Pro, paid via Google AI Pro/Ultra, @gmail.com only, family limits not pooled, age 18+ — fetched 2026-09-13, re-verified 2026-09-13
 - https://developers.google.com/jules/api — API concepts mirror — fetched 2026-09-13
-- Verification date: 2026-09-13
+- Verification date: 2026-09-13 initial, re-verified 2026-09-13 corrective pass — doc-level only, no live API exercised, marked v1alpha pre-stable experimental, maturity low
 
 ### Gate 1 verdict
 **PASS** — Maps directly to V1 loop:
@@ -175,10 +176,12 @@ No additional candidate was found that materially passes both gates better than 
 - Get A Run returns final result text, duration, git branches.
 
 ### Files/diffs
-- No explicit diff surface in public API docs fetched. Result carries git.branches[] reference (repoUrl/branch/prUrl) — remote-reference fulfilment.
-- Artifacts: agent-scoped files (e.g., artifacts/screenshot.png), path relative to workspace artifacts/ directory, because workspace persists across runs. List artifacts, download artifact.
-- Change inspection is not inline-patch; it is branch reference + artifacts. Contract says remote-reference satisfies PRODUCT.md item 4, but Greenfield2 would need to render diff via GitHub PR APIs or show branch. Need validation spike to prove exact external projection for user-facing changed-files/diff view.
+- **Caveat preserved: branch existence != inspectable diffs via Cursor API alone.** Official docs https://cursor.com/docs/cloud-agent/api/endpoints (fetched 2026-09-13, re-verified 2026-09-13) show `Run.git.branches[]` contains `{ repoUrl, branch?, prUrl? }` — a remote-reference to a branch Cursor owns, not diff content. `git` is described as "Per-agent state, not per-run. Every run on the same agent returns the same git snapshot." No `unidiffPatch` or file-content diff field is documented in this API.
+- **Supported path for inspection (requires separate GitHub surface):** Use `prUrl` from `git.branches[]` to fetch PR diff via GitHub's own pull-request APIs, or list/download artifacts (agent-scoped, workspace persists, v1 paths relative). This is a second provider surface (GitHub), not Cursor's own diff surface.
+- **Do not silently combine Cursor + GitHub APIs for completeness:** Contract §4 prohibits assuming transport above adapter and P6 prohibits approximating absent capability. Claiming Cursor alone provides inline diffs would be false completeness. If Greenfield2 chooses Cursor, it must accept coupling to GitHub PR APIs for diff projection and document validation work: spike must prove branch → PR → diff rendering, artifact listing, and that remote-reference satisfies PRODUCT.md item 4 per contract §5.5.1 (it does) without implying Cursor itself returns diffs.
+- Artifacts: agent-scoped files (e.g., artifacts/screenshot.png), path relative to workspace artifacts/ directory. List artifacts, download artifact.
 - RepoUrl returned without scheme (github.com/...), different from request which keeps https://.
+- Verification: https://cursor.com/docs/cloud-agent/api/endpoints chunks 4-5 show git.branches[] schema and artifact semantics; re-verified 2026-09-13.
 
 ### Approvals
 - None observed in Cloud Agents API surface (validated 2026-09-13). No plan gate, no tool permission prompt in this API.
@@ -209,21 +212,21 @@ No additional candidate was found that materially passes both gates better than 
 - Identifier format changed between versions (bc_abc123 → bc-<uuid>) and artifact path semantics changed (relative vs absolute).
 
 ### First-party evidence URLs and verification date
-- https://cursor.com/docs/cloud-agent/api/endpoints — Create/List/Get Agent, Create/List/Get/Stream/Cancel Run, Artifacts, Usage, Models, Repositories, Workers/Pools — fetched 2026-09-13 (chunks 0-5)
-- https://cursor.com/docs/cloud-agent — capabilities overview
-- https://cursor.com/docs/api — auth (Basic + Bearer), rate limits, best practices
-- https://cursor.com/docs-static/cloud-agents-openapi.yaml — OpenAPI spec
-- Verification date: 2026-09-13
+- https://cursor.com/docs/cloud-agent/api/endpoints — Create/List/Get Agent, Create/List/Get/Stream/Cancel Run, Artifacts, Usage, Models, Repositories, Workers/Pools — fetched 2026-09-13 (chunks 0-5), re-verified 2026-09-13 chunks 4-5 show git.branches[] {repoUrl, branch, prUrl} remote-reference only, no inline diff, per-agent not per-run, retention via X-Cursor-Stream-Retention-Seconds, Last-Event-ID opaque, 410 stream_expired remedy read terminal state
+- https://cursor.com/docs/cloud-agent — capabilities overview — fetched 2026-09-13
+- https://cursor.com/docs/api — auth Basic + Bearer, rate limits, best practices — fetched 2026-09-13
+- https://cursor.com/docs-static/cloud-agents-openapi.yaml — OpenAPI spec — fetched 2026-09-13
+- Verification date: 2026-09-13 initial, re-verified 2026-09-13 corrective pass — doc-level only, no live API exercised, marked v1 public beta pre-stable, concurrent v0, maturity medium-low
 
 ### Gate 1 verdict
-**PASS, with one diff-surface caveat to validate in spike**:
+**PASS, with one diff-surface caveat to validate in spike — remote-reference only, not inline-patch, branch existence != inspectable diffs**:
 1. start/continue where exposed: create agent, create run follow-up, list agents — yes.
 2. interact with Agent: assistant SSE, prompt follow-up — yes.
 3. observe progress/plan/tool activity where exposed: SSE tool_call events with args/result, status, thinking, interaction_update — yes, richest of candidates.
-4. inspect changed files/diffs: remote-reference via git.branches[] + artifacts, not inline-patch — satisfies PRODUCT.md item 4 per contract (remote-reference qualifies as change inspection), but exact user-facing diff projection needs spike.
+4. inspect changed files/diffs: remote-reference via git.branches[] (repoUrl/branch/prUrl) + artifacts, not inline-patch — per contract §5.5.1 remote-reference satisfies PRODUCT.md item 4, but **Cursor API alone does not return diff content**; supported inspection path is via GitHub PR APIs using prUrl (separate surface). Spike must prove projection and coupling; do not combine Cursor+GitHub silently for completeness.
 5. respond to approval where exposed: none exposed in this API — required-if-exposed, so not disqualifier.
 6. meaningful result: branch/PR + result text + artifacts — yes.
-7. reconnect/continue where supported: durable agent, new run on same agent, resumable SSE — yes.
+7. reconnect/continue where supported: durable agent, new run on same agent, resumable SSE via Last-Event-ID with X-Cursor-Stream-Retention-Seconds — yes.
 
 ### Gate 2 verdict
 **PASS** — Official Cloud Agents API v1 public beta, user-scoped API keys officially supported, service-account keys for team, sub-tokens for workers. Paid Cursor plan required, provider-direct billing with spend limit, legitimate entitlement. Supported external-client path.
@@ -248,8 +251,11 @@ No additional candidate was found that materially passes both gates better than 
 - Issue assignment via GraphQL mutations: createIssue, updateIssue, addAssigneesToAssignable, replaceActorsForAssignable with agentAssignment input (targetRepositoryId/baseRef/customInstructions/customAgent/model) and required header `GraphQL-Features: issues_copilot_assignment_api_support,coding_agent_model_selection`. REST issue assignees: `POST /repos/{owner}/{repo}/issues/{number}/assignees` with assignee `copilot-swe-agent[bot]` + agent_assignment.
 
 ### Entitlement/billing relationship
-- Available for all paid Copilot plans per docs (note: changelog May 13 says Business/Enterprise only, docs now says all paid — discrepancy noted, re-verify at implementation).
-- Copilot plans (as of 2026-09-13 primary docs):
+- **First-party conflict documented — two official GitHub Docs pages disagree on plan eligibility (both fetched 2026-09-13, re-verified 2026-09-13):**
+  - How-to guide https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api states: "Copilot cloud agent is available for all paid Copilot plans." — describes overall feature availability (including UI, CLI, issue assignment paths).
+  - REST API reference https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 states for Start a task: "This endpoint is only available to users with a Copilot Business or Copilot Enterprise subscription." — restricts the programmatic agent-tasks API path that Greenfield2 would use.
+  - **Resolution for Greenfield2:** Distinguish integration-path legitimacy (official REST API exists and is supported) from eligible plan classes (API path requires Business/Enterprise). Do not generalize broader Copilot availability (all paid plans for non-API entry points) to the API path. For MVP via REST API, eligible entitlement is Business/Enterprise, not all paid plans.
+- Copilot plans (as of 2026-09-13 primary docs, secondary pricing corroboration):
   - Free: allowance of AI credits, limited.
   - Pro $10/mo: Base 1000 credits + 500 flex = 1500 total.
   - Pro+ $39/mo: Base 3900 + 3100 flex = 7000 total.
@@ -258,7 +264,7 @@ No additional candidate was found that materially passes both gates better than 
   - Enterprise $39/seat/mo + $21/seat GHE Cloud = ~$60 real floor: 3900 credits/seat pooled.
 - Usage measured in GitHub AI Credits (1 credit = $0.01). Chat, agent mode, code review, CLI draw from pool; completions unlimited unmetered on paid plans.
 - Enablement: available in all repos stored on GitHub except managed user accounts or explicitly disabled. Discoverable via GraphQL `suggestedActors(capabilities: [CAN_BE_ASSIGNED])` — if enabled, first node login `copilot-swe-agent`.
-- Provider-direct billing.
+- Provider-direct billing. Greenfield2 does not resell.
 
 ### Agent/session lifecycle surface
 - Task as unit: create task returns id, url, html_url, name, creator, owner, repository, state, session_count, artifacts[], archived_at, created_at, updated_at.
@@ -311,12 +317,12 @@ No additional candidate was found that materially passes both gates better than 
 - Combining task API + SDK + PR APIs as one contract would be false completeness.
 
 ### First-party evidence URLs and verification date
-- https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api — starting, listing, checking status, issues API — fetched 2026-09-13
-- https://docs.github.com/en/rest/agent-tasks/agent-tasks — List tasks, Start task, params, auth, states — fetched 2026-09-13 (version 2026-03-10)
+- https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api — states "Copilot cloud agent is available for all paid Copilot plans", starting/listing/checking status, issues API with GraphQL-Features header, auth user-to-server only — fetched 2026-09-13, re-verified 2026-09-13 shows all-paid-plans wording
+- https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 — REST API reference versioned 2026-03-10, public preview subject to change, List tasks / Start a task / Get task / List tasks across repos, states queued/in_progress/completed/failed/idle/waiting_for_user/timed_out/cancelled, fine-grained PAT permission "Agent tasks" read vs read+write, GitHub App installation tokens not supported, **Start a task notes "This endpoint is only available to users with a Copilot Business or Copilot Enterprise subscription"** — fetched 2026-09-13, re-verified 2026-09-13 shows Business/Enterprise restriction
 - https://github.blog/changelog/2026-05-13-start-copilot-cloud-agent-tasks-via-the-rest-api — Business/Enterprise public preview announcement — fetched via search 2026-09-13
-- https://github.blog/changelog/2026-06-04-agent-tasks-rest-api-now-available-for-copilot-pro-pro-and-max/ — Pro/Pro+/Max availability — fetched via search 2026-09-13
+- https://github.blog/changelog/2026-06-04-agent-tasks-rest-api-now-available-for-copilot-pro-pro-and-max/ — Pro/Pro+/Max availability — fetched via search 2026-09-13 (secondary, indicates broader availability evolution, but REST reference remains Business/Enterprise for Start endpoint)
 - https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent — overview, benefits, integrations — fetched via search 2026-09-13
-- Verification date: 2026-09-13
+- Verification date: 2026-09-13 initial, re-verified 2026-09-13 corrective pass — doc-level only, no live API exercised, marked public preview pre-stable, versioned API, maturity medium. **Genuine first-party conflict retained:** how-to says all paid plans (overall feature), REST reference says Business/Enterprise only for Start task API path. Resolution documented in entitlement section.
 
 ### Gate 1 verdict
 **PARTIAL** — Strong on 1,2,6,7 but weak on 3,4,5 for task API alone:
@@ -331,7 +337,7 @@ No additional candidate was found that materially passes both gates better than 
 Overall does not yet present workspace-level development loop with observable progress/plan/tool activity through single supported external surface. SDK would fill gap but is separate surface.
 
 ### Gate 2 verdict
-**PASS** — Official REST API public preview, explicit legitimacy: user-to-server tokens, Copilot subscription required, paid plans, per-repo enablement queryable, firewall, security scanning. Excellent integration legitimacy, best of candidates on auth legitimacy documentation.
+**PASS with narrowed plan class for API path** — Official Agent Tasks REST API public preview, explicit legitimacy: user-to-server tokens (PAT/OAuth/GitHub App user-to-server, no installation tokens), fine-grained permission "Agent tasks" read/write, per-repo enablement queryable via `suggestedActors`, firewall, security scanning. Integration path itself is legitimate and supported. Eligible entitlement for this path is **Business/Enterprise only** per REST reference https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 ("This endpoint is only available to users with a Copilot Business or Copilot Enterprise subscription"), not all paid plans. Broader Copilot cloud agent feature (UI/CLI/issue assignment) is documented as all paid plans per how-to guide https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api, but that does not extend to the REST API path. Gate 2 PASS reflects path legitimacy; billing reasoning corrected to Business/Enterprise for programmatic use.
 
 ### Major architectural coupling/risks
 - Public preview may change, versioned API.
@@ -357,8 +363,9 @@ Overall does not yet present workspace-level development loop with observable pr
 - Billing relationship provider-direct.
 
 ### Agent/session lifecycle surface
-- Primary unit: App — long-lived resource. No run/session/task concept exposed at all.
-- Tools (8 total):
+- Primary unit: **App** — long-lived provider-owned resource, not a task/session/run. **Product vs MCP distinction preserved:** Replit product has Apps, Repls, Deployments, but MCP surface exposes only App-shaped operations; we do not infer additional lifecycle from Replit UI.
+- **Re-verification 2026-09-13 (UTC) — official first-party docs https://docs.replit.com/platforms/mcp-server still list 8 tools (same as 2026-09-13 initial fetch). Independent review claim of 3 tools (create_app_from_prompt/update_app_using_prompt/ask_question only) not confirmed in official docs; therefore 8-tool surface retained. Secondary source https://www.promptarmor.com/connectors/replit shows 4 tools for Claude connector (filtered view), which is secondary and not authoritative over official docs. No live MCP tools/list introspection exercised — doc-level validation only, marked pre-stable/unversioned.**
+- Tools (8 total per official docs):
   - create_app_from_prompt: required appDescription + app_stack (choice list), optional userSpecifiedAppName, userQuotes, attachmentSummary, sourceReplId (private copy).
   - update_app_using_prompt: required replId + changeDescription, optional userQuotes, attachmentSummary.
   - publish_app: replId.
@@ -367,7 +374,8 @@ Overall does not yet present workspace-level development loop with observable pr
   - search_apps: optional query, url, updatedAfter, updatedBefore, limit 1-50.
   - resolve_app_by_name: name exact title.
   - ask_question: replId + question — ask Agent about app without changing.
-- No state enum. Work async, progress observable only indirectly: "A create, update, or publish request is still running — Wait before retrying."
+- No state enum exposed via MCP. Work async, progress observable only indirectly: "A create, update, or publish request is still running — Wait before retrying." — implies polling, not typed lifecycle states.
+- **Lifecycle/publishing/output/continuity/discovery re-evaluated:** Lifecycle is App persistence, not run states; publishing is explicit via publish_app + get_publish_status (live-artifact result); meaningful output is published URL; continuity is same replId via update_app_using_prompt; discovery is list_apps/search_apps/resolve_app_by_name (enumerable App concept) via MCP tools/list mechanism, structurally different from REST capability endpoint. No file/diff/activity/approval surface exposed — still fails PRODUCT.md item 4 per contract §5.5.1 (none + live-artifact alone does not satisfy changed files/diffs).
 
 ### Provider-hosted execution/workspace behavior
 - Replit Agent builds app in Replit cloud-hosted project (code, data, assets), secure isolated environment, auto-save, version control, collaboration, publishing to cloud with single click.
@@ -409,10 +417,11 @@ Overall does not yet present workspace-level development loop with observable pr
 - List default 25 max 50.
 
 ### First-party evidence URLs and verification date
-- https://docs.replit.com/platforms/mcp-server — tools table, URL, transport, auth, setup — fetched 2026-09-13
-- https://docs.replit.com/updates/2026/08/14/changelog — Use Replit through MCP native — fetched via search
-- https://www.scalekit.com/blog/replit-mcp-vs-api — MCP vs Admin API decision framework — secondary, accessed 2026-09-13
-- Verification date: 2026-09-13
+- https://docs.replit.com/platforms/mcp-server — tools table (8 tools: create_app_from_prompt, search_apps, resolve_app_by_name, list_apps, ask_question, update_app_using_prompt, publish_app, get_publish_status), URL https://replit-mcp.com/server/mcp, transport Streamable HTTP, auth OAuth protected-resource discovery — fetched 2026-09-13, re-verified 2026-09-13 (UTC) still 8 tools
+- https://docs.replit.com/updates/2026/08/14/changelog — Use Replit through MCP native — fetched via search 2026-09-13
+- https://www.scalekit.com/blog/replit-mcp-vs-api — MCP vs Admin API decision framework, confirms 8 tools — secondary, accessed 2026-09-13, re-verified 2026-09-13 states 8 tools
+- https://www.promptarmor.com/connectors/replit — shows 4 tools for Claude connector (secondary, filtered view, not authoritative) — accessed 2026-09-13
+- Verification date: 2026-09-13 (initial), re-verified 2026-09-13 (corrective pass) — doc-level only, no live tools/list exercised, marked unversioned/pre-stable
 
 ### Gate 1 verdict
 **PARTIAL — fails PRODUCT.md item 4 and thus Gate 1 per contract §5.5.1**:
@@ -607,9 +616,9 @@ Fulfilment kinds per §5.5.1:
 ## Evidence collection method
 
 - Channel preflight per research.md: repo first (PRODUCT.md, ARCHITECTURE.md, contract v1.1, validation record), then gh api (issue #8 body), then web search/fetch for primary provider docs. Sandbox curl to vendor hosts fails TLS (SSL_ERROR_SYSCALL) — reported as unreachable, not retried.
-- Sources are primary provider documentation (jules.google, cursor.com, docs.github.com, docs.replit.com, developers.openai.com, openai.com) accessed 2026-09-13.
-- No provider API called, no private scraping, no reverse-engineered first-party session endpoints.
-- Secondary sources (scalekit, harnessrouter, blog posts) used only to corroborate absence of surface (e.g., Replit Admin API is governance not build, Codex has no hosted REST API) and labelled where used.
+- Sources are primary provider documentation (jules.google, cursor.com, docs.github.com, docs.replit.com, developers.openai.com, openai.com) accessed 2026-09-13, re-verified 2026-09-13 for corrective pass (Replit 8-tool surface https://docs.replit.com/platforms/mcp-server, Copilot Business/Enterprise restriction https://docs.github.com/en/rest/agent-tasks/agent-tasks?apiVersion=2026-03-10 vs all-paid-plans wording https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api, Cursor git.branches[] remote-reference https://cursor.com/docs/cloud-agent/api/endpoints, Jules lifecycle/activities/types/usage-limits https://jules.google/docs/api/reference/ etc.).
+- No provider API called, no private scraping, no reverse-engineered first-party session endpoints. No live MCP tools/list introspection — doc-level validation only, marked pre-stable alpha/beta/preview/unversioned where applicable. Ambiguity recorded where first-party sources conflict (Copilot entitlement).
+- Secondary sources (scalekit, harnessrouter, promptarmor, blog posts) used only to corroborate absence or filtered views and labelled where used, separated from first-party.
 
 ---
 
