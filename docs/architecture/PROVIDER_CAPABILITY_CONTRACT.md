@@ -1,6 +1,6 @@
 # Provider Capability Contract
 
-**Version:** 1.1 (validated; revised after independent review — see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) §4b findings F11–F15 and §4c consistency corrections C1–C4)
+**Version:** 1.1 (validated; revised after independent review — see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) §4b findings F11–F15 and §4c consistency corrections C1–C5)
 **Status:** **Accepted.** The product owner accepted this contract's direction together with [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) (2026-09-13). It is Architecture authority. It is not an interface implementation, not a schema file, and not an SDK.
 **Lifecycle:** `PROJECT_PHASE=architecture`, `ALLOW_APP_STACK=0`. This document selects no transport, framework, database, auth implementation, hosting target, UI technology or provider.
 **Authority:** [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md) (accepted) requires this contract to exist and be validated before any first-provider selection. [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) (accepted) records its structural shape.
