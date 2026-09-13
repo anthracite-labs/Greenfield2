@@ -11,22 +11,22 @@ Check [`config/project.env`](config/project.env) before assuming anything:
 
 ## Greenfield2 project overlay
 
-Greenfield2 is now an instantiated App 1 repository in **Discovery**. The
-App-Factory / ECC-on-Arena engineering system below is preserved; product work
-must live in the project-owned discovery documents and follow the lifecycle
-rather than modifying the foundation to fit a desired outcome.
+Greenfield2 is now an instantiated App 1 repository in **Architecture**. The
+App-Factory / ECC-on-Arena engineering system below is preserved; project work
+must live in the project-owned product/Architecture documents and follow the
+lifecycle rather than modifying the foundation to fit a desired outcome.
 
 After this engineering entry point, read:
 
 1. [`README.md`](README.md) — repository identity and current lifecycle;
-2. [`FOUNDATIONS.md`](FOUNDATIONS.md) — App 1 discovery constitution, evidence
+2. [`FOUNDATIONS.md`](FOUNDATIONS.md) — App 1 product constitution, evidence
    hierarchy and protected-foundation boundary;
 3. [`config/project.env`](config/project.env) — authoritative lifecycle state;
 4. [`docs/MEMORY.md`](docs/MEMORY.md) — append-only verified project memory;
 5. the issue being worked and only the product/domain/architecture documents
    relevant to that issue.
 
-For ordinary product work, do **not** modify `.ecc/**`, foundation provenance,
+For ordinary project work, do **not** modify `.ecc/**`, foundation provenance,
 verification/self-test scripts, CI gate wiring, or the branch-governance
 payload. A change to those is a separate foundation/ECC task with its own issue
 and review.
@@ -74,7 +74,7 @@ FOUNDATION_VERSION         App-Factory foundation version of this repository
 .ecc/UPSTREAM.md           provenance, licence, curation, sync policy
 config/project.env         lifecycle state: phase and the no-stack guard
 config/main-ruleset.json   portable branch-protection template (applied by a human)
-docs/                      product/architecture/domain/roadmap/security skeletons
+docs/                      project product/architecture/domain/roadmap/security docs
 docs/FACTORY.md            how to instantiate a new application repository
 docs/MEMORY.md             append-only project memory — read and extend it
 docs/decisions/            architecture decision records
