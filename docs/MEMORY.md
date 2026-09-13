@@ -227,3 +227,67 @@ that decision — all four surfaces are pre-stable. Independent review should lo
 hardest at the §4.3 presentation liveness hint, which is the one place a shadow
 state machine could start, and at whether `Absent` is honoured everywhere rather
 than silently coerced. Do not self-merge.
+
+## 2026-09-13 — Provider contract corrected after independent review (v1.0 → v1.1)
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. Independent
+review of the v1.0 contract returned five substantive findings plus one process
+finding. The overall capability-contract approach was kept; the defects were
+corrected.
+
+**Did:** Contract promoted to **v1.1** with five corrections, each recorded as a
+new finding F11–F15 in `PROVIDER_SHAPE_VALIDATION.md` §4b rather than patched
+silently. **F11** — v1.0 said a provider with no change-inspection surface "may
+still qualify" for the MVP loop; PRODUCT.md minimum V1 item 4 carries no "where
+exposed" qualifier, so that relaxed an accepted product requirement. §5 now maps
+every PRODUCT.md item to a capability with its exact qualifier, and `none` is a
+Gate 1 disqualifier. **F12** — `unknown` entitlement was declared but undefined;
+§3.2.1 now defines it and splits behaviour by risk (reads may be optimistic,
+mutating/spend-bearing invocations may not be speculative or auto-retried and
+must warn before commit), §3.2.2 enumerates five evidence kinds, and the manifest
+gains a `mutates` flag. **F13** — the contract could not express mandatory
+provider-native inputs (Replit requires `app_stack` from a fixed provider list);
+new §5.9 adds `RequiredInput`/`InvocationContext`. **F14** — one `ProviderHandle`
+type served both `connection.authorize` and resource references, but DOMAIN.md
+defines **Provider Connection** and **Provider Resource Reference** as separate
+entities; §4 is now split, with the connection legitimately carrying a
+Greenfield2-owned lifecycle and the resource reference not. **F15** — "verbatim"
+error pass-through contradicted PRODUCT.md's "readability **and safe
+presentation**"; §8 now separates unaltered semantics (§8.1) from sanitized
+presentation (§8.2) with a named risk table. Process: ADR-0006 was `accepted`
+while on an unmerged branch, contrary to `.ecc/skills/decisions.md`; it is now
+`proposed`. Added prohibitions P11–P14. No duplicate provider-selection issue
+was created — **Issue #8 already exists** and is now referenced from the
+contract, validation record, ADR-0006, ARCHITECTURE, ROADMAP and README.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`, with `links` resolving 163 relative links (was 153). `bash
+scripts/selftest.sh` → `SELFTEST: PASS — 128 cases behaved as asserted`. Both
+anti-leakage audits re-executed after the rewrite: audit A no matches (exit 1);
+audit B exactly 4 matches, unchanged and confined to the sections stating the
+prohibition. Section numbering re-checked end to end after the §4 split and §4.5
+renumber. No provider selected; `config/project.env` untouched; no `.ecc/**`,
+`scripts/**` or `.github/**` file modified.
+
+**Learned:** The most useful lesson is that the two review passes found
+**different classes** of defect. F1–F10 came from comparing the contract against
+provider shapes and all say the same thing — every apparent universal was a
+majority case. F11–F15 came from comparing it against Greenfield2's own accepted
+product and domain truth, and passing the provider-shape test caught none of
+them. A contract can be perfectly provider-neutral and still be wrong about the
+product it exists to serve. Concretely: provider-neutrality pulled toward
+"everything is optional and provider-defined", which quietly relaxed a product
+requirement, merged two domain entities into one convenient type, and preferred
+fidelity over safety in error text. Two more traps worth recording: a
+`sed`-style blanket rename of `ProviderHandle` also rewrote
+`connection.authorize`'s return type, which is exactly the conflation being
+fixed — type splits need per-site review, not global replace; and an ADR marked
+`accepted` on an unmerged branch is a real workflow violation even though
+nothing depended on it yet.
+
+**Next:** PR #11 is updated and left open for a second independent review. The
+reviewer should check (a) whether the §5 qualifier table now matches PRODUCT.md
+exactly, (b) whether §3.2.1's read/mutating split is the right risk boundary,
+and (c) the referred product question: can `live-artifact` alone satisfy minimum
+V1 item 4? ADR-0006 must be flipped to `accepted` and re-indexed only after the
+PR merges. Provider selection remains Issue #8's job.

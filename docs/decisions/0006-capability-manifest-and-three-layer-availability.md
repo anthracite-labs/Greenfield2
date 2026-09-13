@@ -1,7 +1,11 @@
 # ADR-0006: Model the provider boundary as a declared capability manifest with three-layer availability
 
 **Date:** 2026-09-13
-**Status:** accepted
+**Status:** proposed
+<!-- Becomes `accepted` when PR #11 is merged after independent review.
+     .ecc/skills/decisions.md: "Status is honest. `proposed` until it is
+     actually in force." An ADR on an unmerged branch is not in force, and
+     nothing may rely on it as settled until it is. -->
 **Deciders:** Greenfield2 Architecture (Issue #9), under the sequencing rule in ADR-0005
 
 ## Context
@@ -25,31 +29,42 @@ identifier format and artifact-path semantics between `v0` and `v1`; Jules is
 `v1alpha`; the Copilot agent-tasks API is public preview behind feature headers.
 
 Every apparent universal in the first draft turned out to be a majority case,
-and the draft required ten revisions (F1–F10) to stop asserting them.
+The draft required ten revisions (F1–F10) to stop asserting them, and a further five (F11–F15) after independent review checked the contract clause by clause against accepted product and domain truth.
 
 ## Decision
 
 Greenfield2's provider boundary is a **declared capability manifest over opaque
-provider-native handles**, resolved through **three independently-sourced
-availability layers**.
+provider-native resource references**, resolved through **three
+independently-sourced availability layers**, and bounded by — never narrowing —
+the accepted product requirements it exists to realize.
 
 Concretely, the contract at
-[../architecture/PROVIDER_CAPABILITY_CONTRACT.md](../architecture/PROVIDER_CAPABILITY_CONTRACT.md)
-v1.0:
+[../architecture/PROVIDER_CAPABILITY_CONTRACT.md](../architecture/PROVIDER_CAPABILITY_CONTRACT.md) v1.1:
 
 1. Names capabilities as **provider-neutral questions** (`work.start`,
    `progress.observe`, `approval.respond`, …), never as provider resources.
 2. Makes the **capability manifest** the contract's root: an adapter declares
    what its provider exposes, and absence is declared rather than inferred.
-3. Carries provider resources as **opaque handles** whose `ref` is never parsed,
-   whose `kind` is the provider's own noun and is never a branch condition in
-   Greenfield2 core, and whose `providerState` passes through verbatim.
+3. Keeps **Provider Connection** and **Provider Resource Reference** as two
+   distinct types, per [DOMAIN.md](../DOMAIN.md). Resource references are
+   opaque: `ref` is never parsed, `kind` is the provider's own noun and never a
+   branch condition in Greenfield2 core, and `providerState` passes through
+   verbatim. A connection, by contrast, legitimately carries a
+   Greenfield2-owned lifecycle.
 4. Separates availability into **L1 provider capability**, **L2 account
    entitlement** and **L3 Greenfield2 UI support**, each with its own owner and
    source, with L2 tri-state (`entitled | not-entitled | unknown`) and L3
-   recorded per provider capability rather than globally.
-5. Treats **`Absent` as a first-class, non-exceptional answer**, and bans
+   recorded per provider capability rather than globally. `unknown` has defined
+   behaviour that differs for read-only and mutating capabilities.
+5. Lets adapters **declare the provider's required invocation inputs**, so
+   mandatory provider-native context can be expressed instead of being lost
+   behind a provider-neutral prompt.
+6. Treats **`Absent` as a first-class, non-exceptional answer**, and bans
    transport vocabulary above the adapter boundary.
+7. Preserves provider error **semantics** unaltered while **sanitizing** its
+   presentation, because provider free text is untrusted input.
+8. Relaxes **no** accepted requirement in [PRODUCT.md](../PRODUCT.md); where the
+   two disagree, PRODUCT.md wins.
 
 ## Alternatives considered
 
@@ -100,9 +115,11 @@ v1.0:
 
 ### Follow-ups
 
-- First-provider selection is now **unblocked** and remains a **separate** decision, using the Product Fit and Integration Legitimacy gates in [PRODUCT.md](../PRODUCT.md). It is deliberately **not** made here or in Issue #9.
+- First-provider selection is now **unblocked** and is already tracked by the existing **[Issue #8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)**, which carries the Product Fit and Integration Legitimacy gates. Selection is deliberately **not** made here or in Issue #9, and no duplicate issue should be opened.
 - Re-verify the validation set's provider surfaces before relying on any specific endpoint in that selection; the profiles are dated 2026-09-13 and every surface is pre-stable.
 - Define the adapter interface in code once an application-stack ADR exists. Until then `ALLOW_APP_STACK=0` stands.
 - Establish governance for adding capability identifiers, so the catalogue grows deliberately rather than per integration.
 - Revisit whether a common work-item abstraction is genuine or accidental only when more provider shapes are available — not by assumption from four.
 - Consider a fifth validation shape covering multi-repository work or self-hosted execution before the contract is treated as settled.
+- **Refer to the product owner:** whether observing a running or published artifact (`live-artifact`) can on its own satisfy minimum V1 item 4, *"inspect meaningful provider-exposed changed files and/or diffs"*. This is a product interpretation, not an Architecture call. Until it is answered the safe reading applies — `live-artifact` alone does not satisfy item 4 (contract §5.5.1, §11).
+- Mark this ADR `accepted` and update the index only once PR #11 is merged after independent review.

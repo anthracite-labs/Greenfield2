@@ -2,7 +2,7 @@
 
 **Purpose:** Evidence that [PROVIDER_CAPABILITY_CONTRACT.md](PROVIDER_CAPABILITY_CONTRACT.md) is provider-neutral rather than first-vendor-shaped, and the record of what earlier drafts got wrong.
 **Issue:** #9 — [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md) requires validation against at least three materially different provider shapes before first-provider selection.
-**Result:** four shapes validated; **ten contract revisions** (F1–F10). Contract promoted to v1.0.
+**Result:** four shapes validated; **fifteen contract revisions** (F1–F10 from the provider-shape comparison, F11–F15 from independent review). Contract promoted to v1.1.
 **Selects no provider.** Every provider below is validation evidence. Nothing here ranks, scores, recommends or selects one.
 
 ---
@@ -60,7 +60,7 @@ Every surface below is explicitly pre-stable:
 **This is the single most important finding for the contract's design:** the
 instability is not an accident of these four providers, it is the normal
 condition of the category. The contract is therefore written so that provider
-drift is an expected input, not a breaking surprise (§4.1, §8, §10).
+drift is an expected input, not a breaking surprise (§4.2, §8, §10).
 
 ---
 
@@ -176,7 +176,7 @@ auth mechanisms. **No axis is common to all four.**
 ## 4. Findings and the revisions they forced
 
 Each finding names the draft assumption it falsified, the evidence, and the
-revision now carried in contract v1.0. These are the "contract changes required
+revision now carried in contract v1.1. These are the "contract changes required
 by validation" that Issue #9 asks for.
 
 ### F1 — There is no universal work-item topology
@@ -271,9 +271,9 @@ by validation" that Issue #9 asks for.
   carries both a hierarchical `name` and a separate flat `id` for the same
   session; Cursor documents its stream event ids as *"an opaque string you
   should not parse"*.
-- **Revision:** `ProviderHandle.ref` is opaque and must never be parsed, split,
+- **Revision:** `ProviderResourceReference.ref` is opaque and must never be parsed, split,
   composed or prefix-matched (P10). `kind` is display vocabulary and never a
-  branch condition in core (P8). Contract §4.1.
+  branch condition in core (P8). Contract §4.2.
 
 ### F9 — Capability discovery itself has no universal mechanism
 
@@ -296,8 +296,106 @@ by validation" that Issue #9 asks for.
   public preview behind feature headers.
 - **Revision:** every provider-supplied token has a defined path for "value
   Greenfield2 has never seen", which is `unknown` — never a crash, never a
-  silent substitution. This is what makes the §4.3 liveness hint's mandatory
-  `unknown` non-optional. Contract §4.3, §8.
+  silent substitution. This is what makes the §4.5 liveness hint's mandatory
+  `unknown` non-optional. Contract §4.5, §8.
+
+---
+
+## 4b. Findings from independent review of PR #11 (F11–F15)
+
+F1–F10 came from comparing the contract against provider shapes. These five came
+from comparing the contract against **Greenfield2's own accepted product and
+domain truth**, which the first pass read but did not check the contract
+against clause by clause. They are recorded here rather than quietly patched,
+because each one is a defect a future session could reintroduce.
+
+### F11 — The contract relaxed an accepted MVP product requirement
+
+- **Defect:** §5.5.1 said a provider with no change-inspection surface *"may
+  still qualify for the MVP loop if the rest of the loop is strong and
+  Greenfield2 hands off for change review"*, and the §5 preamble said a provider
+  needs *"enough of the `loop` group"*.
+- **Falsified by:** [PRODUCT.md](../PRODUCT.md) minimum V1 item 4 — *"inspect
+  meaningful provider-exposed changed files and/or diffs"* — carries **no**
+  "where exposed" qualifier, unlike items 1, 3, 5 and 7. A contract has no
+  authority to relax an accepted product requirement.
+- **Revision:** §5 now carries an explicit item-by-item mapping that reproduces
+  PRODUCT.md's qualifiers exactly and states that PRODUCT.md wins on
+  disagreement. §5.5.1 now states that `none` **fails** Product Fit (Gate 1).
+  `none` stays representable as honest L1 truth — the correction is about
+  qualification, not about hiding the capability.
+
+### F12 — `unknown` entitlement was declared but never defined
+
+- **Defect:** §3.2 declared `entitlement ∈ { entitled, not-entitled, unknown }`
+  and said `unknown` must be "surfaced as uncertainty", but never said what
+  Greenfield2 **does**. The §3.1 disposition table had no `unknown` row, so
+  every adapter would have invented its own behaviour.
+- **Revision:** §3.1 gains two `unknown` rows. §3.2.1 defines the behaviour and
+  splits it by risk: read-only capabilities may be invoked optimistically, while
+  **mutating or spend-bearing** capabilities are never invoked speculatively,
+  never auto-retried after a refusal, and must show the unconfirmed entitlement
+  *before* the user commits. §3.2.2 enumerates the five entitlement evidence
+  kinds. The manifest gains a `mutates` flag so adapters must declare this
+  truthfully.
+
+### F13 — The contract could not express required provider-native invocation inputs
+
+- **Defect:** `work.start(connection, intent)` carried only a provider-neutral
+  instruction. Nothing could express that a provider requires specific
+  provider-owned inputs before it will accept the request.
+- **Falsified by:** Replit's `create_app_from_prompt` requires **both**
+  `appDescription` **and** `app_stack`, from a fixed provider-defined list.
+  Jules requires `sourceContext` for non-repoless sessions. Cursor requires
+  `repos[].url` on every entry plus a mutually exclusive execution-environment
+  choice. Copilot addresses work by `{owner}/{repo}`.
+- **Revision:** new §5.9 defines `RequiredInput` and `InvocationContext`; the
+  manifest gains `requiredInputs`; `work.start` and `work.continue` take an
+  `InvocationContext`. Provider choice lists stay provider vocabulary (not
+  renamed), provider defaults are passed through rather than replaced, and a
+  missing required input is explicitly **not** `Absent`.
+
+### F14 — Provider Connection and Provider Resource Reference were one type
+
+- **Defect:** a single `ProviderHandle` type was returned by
+  `connection.authorize` *and* used for every provider resource reference.
+- **Falsified by:** [DOMAIN.md](../DOMAIN.md) defines **two** separate
+  Greenfield2-owned concepts — *Provider Connection* ("the authorized
+  relationship/reference between a Greenfield2 Account and one supported
+  provider account") and *Provider Resource Reference* ("an opaque reference …
+  to reopen or navigate to a provider-owned resource") — with different
+  authority and different invariants.
+- **Revision:** §4 split into §4.1 Provider Connection, §4.2 Provider Resource
+  Reference and §4.3 a comparison of why they must stay separate. The connection
+  legitimately carries a Greenfield2-owned lifecycle state; the resource
+  reference does not. All capability shapes updated, and adapter obligation #9
+  forbids returning one where the other is meant. Collapsing them fails in both
+  directions: the second failure mode is granting Greenfield2 a lifecycle over
+  provider-owned resources, which is the shadow-state risk DOMAIN.md prohibits.
+
+### F15 — "Verbatim" error pass-through contradicted the safe-presentation requirement
+
+- **Defect:** §8 required `ProviderRefusal` to carry the provider's message and
+  §5.8 said errors pass through "formatted for readability **only**".
+- **Falsified by:** [PRODUCT.md](../PRODUCT.md) requires formatting "for
+  readability **and safe presentation**". Provider free text is untrusted input:
+  it can carry markup or script, embedded URLs, credential-shaped substrings,
+  personal data, and instruction-shaped content aimed at an assistant.
+- **Revision:** §8 now separates the two obligations. **§8.1** — error
+  *semantics* (code, category, retryability, entitlement vs quota vs policy,
+  provider-stated remedy) pass through unaltered and Greenfield2 adds no
+  execution state machine. **§8.2** — *presentation* is sanitized against a
+  named risk table, and sanitizing is explicitly **not** reinterpretation.
+  **§8.3** adds the retry and spend rules. Where a provider exposes no
+  structured code, adapters report `unclassified` rather than guessing, because
+  guessing is reinterpretation.
+
+### Process correction alongside F11–F15
+
+ADR-0006 was committed with `**Status:** accepted` while sitting on an unmerged
+branch. [`.ecc/skills/decisions.md`](../../.ecc/skills/decisions.md) requires
+*"Status is honest. `proposed` until it is actually in force."* It is now
+`proposed`, and the ADR index agrees. Nothing relied on it as settled.
 
 ---
 
@@ -312,7 +410,7 @@ Every provider noun observed in the validation set, and where it lives.
 
 | Provider noun | Provider | Greenfield2-owned entity? | Where it appears |
 | :-- | :-- | :-- | :-- |
-| `Session` | Jules | **No** | Provider profile only; carried as `ProviderHandle.kind = "Session"` |
+| `Session` | Jules | **No** | Provider profile only; carried as `ProviderResourceReference.kind = "Session"` |
 | `Activity`, `Artifact`, `Source`, `Plan` | Jules | **No** | Provider profile only |
 | `Agent`, `Run`, `Worker`, `Pool` | Cursor | **No** | Provider profile only |
 | `App`, `Repl` | Replit | **No** | Provider profile only |
@@ -335,7 +433,7 @@ of which is a provider term.
 | Copilot task `state` (8 values) | **No.** Passes through verbatim. |
 | Replit (no exposed lifecycle) | **No.** Greenfield2 did not invent one to fill the gap. |
 
-The only Greenfield2-side lifecycle is the §4.3 presentation liveness hint
+The only Greenfield2-side lifecycle is the §4.5 presentation liveness hint
 (`active | awaiting-user | settled | unknown`). It is lossy, presentation-only,
 non-authoritative, never persisted as provider state, and carries a mandatory
 `unknown`. It exists so a phone screen can choose an affordance; it is not a
@@ -346,7 +444,7 @@ state machine and it never decides whether an action is permitted.
 The test ADR-0005 exists to force. Had any single provider been designed first,
 the contract would plausibly have inherited:
 
-| If designed from… | The leakage would have been | Actually present in v1.0? |
+| If designed from… | The leakage would have been | Actually present in v1.1? |
 | :-- | :-- | :-- |
 | Jules | a required plan-approval step; `Activity`/`Artifact` as core types; inline diff as *the* change model; polling as the only delivery | **No** — approval is optional and provider-typed (F3); change inspection has four fulfilments (F2); delivery is declared (F5) |
 | Cursor | a two-level Agent/Run hierarchy; SSE as the observation primitive; artifact paths as a typed contract | **No** — no hierarchy is assumed (F1); `stream` is optional (F5); `ref` is opaque and unparsed (F8) |
@@ -375,20 +473,32 @@ ordinary English prose such as "the rest of the loop".
 ## 6. Conclusion
 
 - The contract survived contact with four materially different shapes, **after
-  ten revisions**. That revision count is the useful signal: an unrevised
+  fifteen revisions**. That revision count is the useful signal: an unrevised
   contract validated against three providers would more likely have been a
   first vendor's shape with the serial numbers filed off.
-- The revisions cluster on one theme: **every apparent universal was actually a
-  majority case.** Work items, diffs, approvals, results, streaming and
-  entitlements each looked universal until a shape arrived that lacked them or
-  meant something different by them.
+- The revisions fall into **two distinct clusters**, and the difference matters.
+  **F1–F10** came from comparing the contract against provider shapes, and they
+  share one theme: **every apparent universal was actually a majority case.**
+  Work items, diffs, approvals, results, streaming and entitlements each looked
+  universal until a shape arrived that lacked them or meant something different
+  by them. **F11–F15** came from comparing the contract against Greenfield2's
+  *own* accepted product and domain truth, and they share a different theme:
+  **provider-neutrality was being pursued at the cost of product fidelity.** The
+  contract relaxed an accepted MVP requirement, left `unknown` undefined, could
+  not express mandatory provider inputs, merged two DOMAIN.md entities, and
+  preferred verbatim error text over safe presentation. Passing the
+  provider-shape test did not catch any of those.
 - The contract's spine is therefore *declared capability over assumed
-  structure*: a manifest that states what exists, opaque handles that refuse to
-  interpret provider identity, three independently-sourced availability layers,
-  and `Absent` as a first-class, non-exceptional answer.
+  structure*: a manifest that states what exists, opaque resource references
+  that refuse to interpret provider identity, three independently-sourced
+  availability layers, and `Absent` as a first-class, non-exceptional answer —
+  bounded by the accepted product requirements it exists to realize, not
+  narrowed by them.
 - **No provider is selected, ranked, scored or recommended by this document.**
-  First-provider selection is a separate decision, now unblocked, using the
-  Product Fit and Integration Legitimacy gates in [PRODUCT.md](../PRODUCT.md).
+  First-provider selection is a separate decision, now unblocked and already
+  tracked by **[Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8)**,
+  using the Product Fit and Integration Legitimacy gates in
+  [PRODUCT.md](../PRODUCT.md).
 
 ### 6.1 What this validation does *not* establish
 
@@ -404,7 +514,7 @@ Stated plainly, so it is not over-read:
 - **Capability claims were not exercised.** Whether a documented endpoint
   actually behaves as documented for a given account is an integration question.
 - **Provider terms may have changed since 2026-09-13.** Re-verify before relying
-  on any specific endpoint in a provider-selection decision.
+  on any specific endpoint in the Issue #8 provider-selection evaluation.
 
 ## Related
 

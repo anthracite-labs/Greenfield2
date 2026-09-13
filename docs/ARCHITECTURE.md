@@ -59,15 +59,16 @@ The capability contract is **not** a universal Greenfield2 resource model. It de
 
 **Status: steps 1–3 are complete.** The contract is recorded as
 [the provider capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md)
-v1.0, its structural shape is decided by
+v1.1, its structural shape is recorded in
 [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md),
 and it was validated against four materially different provider shapes with ten
 recorded revisions in
 [the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md). Step 4 —
-first-provider selection — is therefore **unblocked and still open**, and remains
-a separate decision.
+first-provider selection — is therefore **unblocked and still open**. It is
+tracked by the existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8),
+not by a new issue.
 
-The contract must keep three questions separate, and v1.0 models them as three independently-sourced layers:
+The contract must keep three questions separate, and v1.1 models them as three independently-sourced layers:
 
 - **L1 — Provider capability:** does this provider expose the capability through a supported external-client surface?
 - **L2 — Connected-account entitlement:** is this particular user's provider account legitimately authorized/entitled to use it right now? Tri-state, because several providers expose no entitlement endpoint at all and `unknown` must not be rendered as denial.
@@ -84,7 +85,12 @@ The validated set was Jules, Cursor, Replit and GitHub Copilot. Those names are 
 | Area | Decision | Recorded in |
 | :-- | :-- | :-- |
 | Provider-contract-first sequencing | Define and validate the provider capability contract before selecting the first provider. | [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md) |
-| Provider capability contract | A declared capability manifest over opaque provider-native handles, resolved through three independently-sourced availability layers. Validated against four materially different provider shapes; ten revisions recorded. | [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md), [contract v1.0](architecture/PROVIDER_CAPABILITY_CONTRACT.md), [validation record](architecture/PROVIDER_SHAPE_VALIDATION.md) |
+| Provider capability contract | A declared capability manifest over opaque provider-native resource references, resolved through three independently-sourced availability layers. Validated against four materially different provider shapes; fifteen revisions recorded. | [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md), [contract v1.1](architecture/PROVIDER_CAPABILITY_CONTRACT.md), [validation record](architecture/PROVIDER_SHAPE_VALIDATION.md) |
+
+ADR-0006 is recorded as **`proposed`** until this work is merged after
+independent review, per [`.ecc/skills/decisions.md`](../.ecc/skills/decisions.md)
+("`proposed` until it is actually in force"). It appears here because the
+decision and this page land together; it is not yet authority.
 
 ## Application Architecture decisions — currently open
 
@@ -92,7 +98,7 @@ No item in this section is selected merely by being listed.
 
 | Area | Architecture question | Decision vehicle |
 | :-- | :-- | :-- |
-| First provider | **Now unblocked.** Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? The validation set is evidence only and must not be inherited as the answer. | Separate provider-selection decision using the Product Fit + Integration Legitimacy gates; ADR if the choice creates durable coupling |
+| First provider | **Now unblocked.** Which eligible provider best satisfies the MVP capability loop and legitimate third-party integration requirements? The validation set is evidence only and must not be inherited as the answer. | The existing [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8), using the Product Fit + Integration Legitimacy gates; ADR if the choice creates durable coupling |
 | Client/application stack | Which approach best supports phone-first and larger-screen surfaces while respecting the repository constraints? | Application-stack ADR |
 | Provider boundary | Contract-level adapter obligations are fixed by [the capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md) §9. What remains is the code-level adapter interface, which needs a stack. | Architecture issue after the application-stack ADR |
 | Identity/auth | How does Greenfield2 Account connect to provider authorization while keeping entitlement distinct? | Security/Architecture review + ADR if durable |

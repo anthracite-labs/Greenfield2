@@ -56,17 +56,19 @@ Architecture is the active Greenfield2 lifecycle stage.
       [ADR-0005](decisions/0005-provider-contract-before-provider-selection.md).
       Recorded as
       [the provider capability contract](architecture/PROVIDER_CAPABILITY_CONTRACT.md)
-      v1.0, structurally decided by
+      v1.1, structurally recorded in
       [ADR-0006](decisions/0006-capability-manifest-and-three-layer-availability.md).
 - [x] Validate that contract against at least three materially different provider
       shapes and revise it where the comparison exposes vendor leakage, false
       universality or lowest-common-denominator loss. Four shapes validated with
-      ten recorded revisions — see
+      fifteen recorded revisions — see
       [the validation record](architecture/PROVIDER_SHAPE_VALIDATION.md).
-- [ ] Now unblocked, and still separate: evaluate and select the first provider
-      against the accepted product-fit and integration-legitimacy gates. Do not
-      inherit a provider choice from Discovery references, from the validation
-      set, or from Architecture research candidates.
+- [ ] Now unblocked, and already tracked by
+      [Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8):
+      evaluate and select the first provider against the accepted product-fit
+      and integration-legitimacy gates. Do not inherit a provider choice from
+      Discovery references, from the validation set, or from Architecture
+      research candidates.
 - [ ] Evaluate real implementation alternatives; record durable choices as ADRs
       in [decisions/](decisions/README.md) with costs and rejected alternatives
       stated.
