@@ -25,9 +25,12 @@ this repository. `PROJECT_PHASE` tells you where the project actually is:
 | `architecture` | Product defined, stack being chosen | Architecture issues and ADRs |
 | `implementation` | Stack chosen and recorded in an ADR | Application work, per that ADR |
 
-Unless `PROJECT_PHASE=implementation` with `ALLOW_APP_STACK=1` and a recorded
-`STACK_DECISION_ADR`, there is intentionally no product definition, no
-framework, no database, and no UI. **Do not invent any.**
+Follow the phase table literally. In `factory` and `discovery`, do not invent a
+product definition; in `architecture`, the product is already defined but
+implementation is still locked. Unless `PROJECT_PHASE=implementation` with
+`ALLOW_APP_STACK=1` and a recorded `STACK_DECISION_ADR`, there is intentionally
+no selected application stack and no application implementation authority.
+**Do not invent framework, database, auth, hosting, UI, or other stack choices.**
 
 ---
 
