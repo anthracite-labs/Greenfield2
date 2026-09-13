@@ -1,7 +1,7 @@
 # Domain
 
-**Status:** Minimal Greenfield2-owned product vocabulary accepted for Discovery review in Issue #4.  
-**Lifecycle:** `PROJECT_PHASE=discovery`; provider/domain implementation details remain deferred to Architecture.
+**Status:** Minimal Greenfield2-owned product vocabulary accepted during Discovery review in Issue #4.  
+**Lifecycle:** `PROJECT_PHASE=architecture`; the accepted vocabulary remains a product guardrail while Architecture decides implementation details.
 
 Greenfield2 intentionally owns a very small product domain in MVP. Provider-native development resources remain provider-owned and provider-authoritative.
 
@@ -42,7 +42,7 @@ Terms such as the following may appear in provider UIs, research, adapters, even
 - evidence / verification;
 - quota / entitlement / usage.
 
-Discovery does **not** establish Greenfield2-owned canonical entities for those concepts.
+The accepted Discovery vocabulary does **not** establish Greenfield2-owned canonical entities for those concepts.
 
 When a provider exposes one of them, Greenfield2 preserves the provider's own terminology and semantics unless a future reviewed Greenfield2 decision establishes a genuinely distinct Greenfield2 concept.
 
@@ -107,9 +107,9 @@ These distinctions are product/architecture guardrails; they do not imply that G
 
 ## State semantics
 
-Discovery does not define a Greenfield2 state machine for provider resources.
+Greenfield2 does not define a Greenfield2 state machine for provider resources.
 
-Provider resource lifecycle and states remain provider-native. Greenfield2 may maintain its own account/connection/UI lifecycle metadata as needed, but exact state machines, persistence design, adapter contracts and transport semantics belong to Architecture.
+Provider resource lifecycle and states remain provider-native. Greenfield2 may maintain its own account/connection/UI lifecycle metadata as needed. The accepted provider capability contract defines the interface-level boundary; persistence design, the code-level adapter interface and provider-specific transport choices remain Architecture work.
 
 ## Reference-source boundary
 
@@ -121,8 +121,8 @@ Research vocabulary remains evidence until a reviewed Greenfield2 decision promo
 
 ## Related
 
-- [`../FOUNDATIONS.md`](../FOUNDATIONS.md) — evidence hierarchy and Discovery constitution
-- [PRODUCT.md](PRODUCT.md) — accepted product definition under review
+- [`../FOUNDATIONS.md`](../FOUNDATIONS.md) — product constitution and evidence hierarchy
+- [PRODUCT.md](PRODUCT.md) — accepted product definition
 - [ROADMAP.md](ROADMAP.md) — lifecycle sequencing
-- [ARCHITECTURE.md](ARCHITECTURE.md) — application architecture later
-- [decisions/](decisions/README.md) — durable technical decisions after Discovery
+- [ARCHITECTURE.md](ARCHITECTURE.md) — active application Architecture decisions and open questions
+- [decisions/](decisions/README.md) — durable technical decisions
