@@ -397,3 +397,11 @@ as the answer. Implementation remains locked: `ALLOW_APP_STACK=0`,
 `PROJECT_PHASE=architecture`, `STACK_DECISION_ADR` empty. The application stack
 still needs its own accepted ADR plus the separate reviewed lifecycle
 transition.
+
+## 2026-09-13 — Live main governance aligned (issue #12, branch `docs/issue-12-record-live-governance`, PR #15)
+
+**Done:** Verified the live `main-protection` ruleset after the product owner amended it, and recorded the resolved GitHub-governance follow-up in `docs/discovery/FOUNDATION_AUDIT.md` without changing foundation policy.
+**Verified:** GitHub ruleset `23164565` is active on `~DEFAULT_BRANCH` with `required_approving_review_count=0`, `require_last_push_approval=false`, review-thread resolution, strict/up-to-date `Foundation gate` and `Independent checks`, deletion/non-fast-forward protection, and `bypass_actors=[]`. After restoring the ledger, `main...docs/issue-12-record-live-governance` showed only the intended audit-file addition before this append.
+**Learned:** Live GitHub administration can drift from committed policy in either direction. The repository gate remains authoritative for the intended solo-owner workflow; a superficially stricter live setting is not automatically correct if it breaks that workflow.
+**Dead ends:** PR #13 tried to change the portable policy to one required human approval; `scripts/verify.sh` correctly rejected it, so the branch was reverted to a zero-file diff and the PR was closed. During this documentation session, one connector replacement write also temporarily overwrote `docs/MEMORY.md` on the branch; the exact original blob `ce0f97abca1d936df0d829642e1dca91ddcce5f5` was restored before proceeding. `main` was never modified.
+**Next:** Let CI verify the final PR #15 head, review the final diff, then merge only if the repository gate and independent checks are green. Resume Issue #8 afterward; do not mix provider-selection work into this governance PR.

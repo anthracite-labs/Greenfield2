@@ -73,6 +73,21 @@ requires an authorized human to apply and then verify the live ruleset. This is
 an administrative follow-up, not a reason to weaken or rewrite the committed
 foundation.
 
+### 2026-09-13 governance follow-up
+
+The Issue #1 findings above remain historical evidence of the repository state
+at that time. The administrative follow-up is now resolved: live GitHub ruleset
+`main-protection` is active on `~DEFAULT_BRANCH`, GitHub reports `main` as
+protected, and the live policy matches the committed solo-owner governance
+intent in `config/main-ruleset.json` for the material controls: pull requests
+required, `required_approving_review_count=0`,
+`require_last_push_approval=false`, review-thread resolution required, strict
+and up-to-date `Foundation gate` and `Independent checks`, no branch deletion,
+no non-fast-forward updates, and no bypass actors.
+
+This follow-up records platform state only. It does not change foundation policy
+or turn GitHub administrative state into repository-owned configuration.
+
 ## App 1 evidence boundary
 
 The following are project research inputs, not foundation machinery:
