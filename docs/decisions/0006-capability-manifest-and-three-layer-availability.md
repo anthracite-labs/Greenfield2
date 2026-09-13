@@ -1,12 +1,8 @@
 # ADR-0006: Model the provider boundary as a declared capability manifest with three-layer availability
 
 **Date:** 2026-09-13
-**Status:** proposed
-<!-- Becomes `accepted` when PR #11 is merged after independent review.
-     .ecc/skills/decisions.md: "Status is honest. `proposed` until it is
-     actually in force." An ADR on an unmerged branch is not in force, and
-     nothing may rely on it as settled until it is. -->
-**Deciders:** Greenfield2 Architecture (Issue #9), under the sequencing rule in ADR-0005
+**Status:** accepted
+**Deciders:** Greenfield2 Architecture (Issue #9), under the sequencing rule in ADR-0005; direction accepted by the Greenfield2 product owner, 2026-09-13
 
 ## Context
 
@@ -115,11 +111,11 @@ Concretely, the contract at
 
 ### Follow-ups
 
-- First-provider selection belongs to the existing **[Issue #8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)**, which carries the Product Fit and Integration Legitimacy gates. Issue #8 should not treat itself as unblocked until **this ADR is accepted**, because ADR-0005's precondition is a *validated contract*, and a contract whose structure is still `proposed` is not yet settled. Selection is deliberately **not** made here or in Issue #9, and no duplicate issue should be opened.
+- First-provider selection is **now unblocked as a consequence of this acceptance**, and belongs to the existing **[Issue #8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)**, which carries the Product Fit and Integration Legitimacy gates. ADR-0005's precondition was a *validated contract*, and that precondition is now discharged. Selection is deliberately **not** made here or in Issue #9, the validation set must not be inherited as the answer, and no duplicate issue should be opened. **This ADR does not select a provider and does not authorize implementation.**
 - Re-verify the validation set's provider surfaces before relying on any specific endpoint in that selection; the profiles are dated 2026-09-13 and every surface is pre-stable.
 - Define the adapter interface in code once an application-stack ADR exists. Until then `ALLOW_APP_STACK=0` stands.
 - Establish governance for adding capability identifiers, so the catalogue grows deliberately rather than per integration.
 - Revisit whether a common work-item abstraction is genuine or accidental only when more provider shapes are available — not by assumption from four.
 - Consider a fifth validation shape covering multi-repository work or self-hosted execution before the contract is treated as settled.
 - **Resolved during review, no product decision needed:** observing a running or published artifact (`live-artifact`) does **not** on its own satisfy minimum V1 item 4, *"inspect meaningful provider-exposed changed files and/or diffs"* — running output is neither changed files nor diffs. It still counts under item 6 through `result.observe`. A first provider needs a real change-inspection surface in addition to any live output (contract §5.5.1, §11).
-- Mark this ADR `accepted` and update the index only once PR #11 is merged after independent review.
+- Re-read this contract against real provider behaviour during the first adapter implementation; the validation was documentation-level, and the negative consequences above anticipate revision.

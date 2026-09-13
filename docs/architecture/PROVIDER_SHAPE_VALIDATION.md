@@ -399,8 +399,10 @@ because each one is a defect a future session could reintroduce.
 
 ADR-0006 was committed with `**Status:** accepted` while sitting on an unmerged
 branch. [`.ecc/skills/decisions.md`](../../.ecc/skills/decisions.md) requires
-*"Status is honest. `proposed` until it is actually in force."* It is now
-`proposed`, and the ADR index agrees. Nothing relied on it as settled.
+*"Status is honest. `proposed` until it is actually in force."* It was changed
+to `proposed` and the ADR index agreed; nothing relied on it as settled. (The
+product owner accepted ADR-0006 later the same day, so it is now `accepted` —
+see §4c.)
 
 ---
 
@@ -415,11 +417,24 @@ had not.
 | C1 | §3 still stated `effective = L1 ∧ L2 ∧ L3` — **boolean** notation over a layer §3.2 had just made **three-valued**. Under that formula `unknown` would silently evaluate as `false`, contradicting §3.2.1 and the §3.1 table. | §3 now defines a total `resolution(...)` function over L1 × L2 × L3 whose six outcomes match the §3.1 disposition table row for row, with a note that `unknown` must never be collapsed into either boolean value. |
 | C2 | §2 still described `ProviderRefusal` as carrying the provider's error *"verbatim"* — the exact wording F15 removed from §8. | §2 now says it carries provider **semantics unaltered** in a **sanitized presentation**, pointing at §8.1/§8.2. |
 | C3 | `live-artifact` was left as an open product question, but PRODUCT.md already answers it. | Resolved from the accepted wording: item 4 says *"changed files and/or diffs"*, so running or published output is **not** change inspection and does not satisfy item 4 alone. It still counts under **item 6** via `result.observe`. No new product decision was needed; contract §5.5.1 and §11 updated. |
-| C4 | ARCHITECTURE.md listed ADR-0006 under *"decisions — decided"* and called first-provider selection *"now unblocked"* in three places, while the ADR is `proposed`. | ADR-0006 moved to a **"proposed, not yet in force"** section; the open-decisions row now reads **"blocked pending acceptance of ADR-0006"**; ROADMAP, README, contract §11 and ADR-0006's own follow-ups agree. The reasoning: ADR-0005's precondition is a *validated contract*, and a contract whose structure is still `proposed` is not yet settled. |
+| C4 | ARCHITECTURE.md listed ADR-0006 under *"decisions — decided"* and called first-provider selection *"now unblocked"* in three places, while the ADR was `proposed`. | ADR-0006 was moved to a "proposed, not yet in force" section and every consequence was re-worded to blocked. **Superseded by the acceptance recorded below**: the product owner has since accepted ADR-0006, so the section was folded back into "decided" and Issue #8 is genuinely open. The lesson stands independently of the outcome. |
+| **C5** | The §3.1 disposition table gave the `unknown`-entitlement row `L3 = –` (any), which **overlapped** the separate `L3 = ✗` row and contradicted `resolution()` in §3, where `unconfirmed` requires `L3` to be true. | Row corrected to **`L1=✓, L2=unknown, L3=✓ → unconfirmed`**. The six rows now map one-to-one onto the six `resolution()` outcomes, covering all twelve L1 × L2 × L3 combinations exactly once, with no overlap and no gap. |
 
-C4 is the one with teeth. Marking an ADR `proposed` is not enough if the
-surrounding documents keep describing its consequences as already in force —
-the status field becomes decoration.
+C4 was the one with teeth, and C5 is its mirror image inside a table. Marking
+an ADR `proposed` is not enough if the surrounding documents keep describing its
+consequences as already in force — the status field becomes decoration. Equally,
+a summary table must be re-derived whenever the formal definition beside it
+changes: the `unknown` row drifted out of step with `resolution()` the moment
+`resolution()` was introduced in C1, and nothing caught it until review.
+
+#### Status of C4 after acceptance
+
+The product owner accepted ADR-0006 on 2026-09-13, so the C4 correction has been
+**reversed in the correct direction**: ADR-0006 is `accepted`, the contract row
+sits in ARCHITECTURE.md's "decided" table, and Issue #8 is open *as a
+consequence of that acceptance* rather than by assumption. C4 stays in this log
+because the failure mode it describes does not depend on which way the status
+happens to point.
 
 ---
 
@@ -522,10 +537,10 @@ ordinary English prose such as "the rest of the loop".
   First-provider selection is a separate decision belonging to
   **[Issue #8](https://github.com/anthracite-labs/Greenfield2/issues/8)**, using
   the Product Fit and Integration Legitimacy gates in
-  [PRODUCT.md](../PRODUCT.md). It remains **blocked** until
+  [PRODUCT.md](../PRODUCT.md). With
   [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md)
-  is accepted, because ADR-0005's precondition is a validated contract and this
-  contract's structural decision is still `proposed`.
+  accepted, ADR-0005's precondition — a validated contract — is discharged and
+  Issue #8 is open. Nothing in this document selects a provider.
 
 ### 6.1 What this validation does *not* establish
 

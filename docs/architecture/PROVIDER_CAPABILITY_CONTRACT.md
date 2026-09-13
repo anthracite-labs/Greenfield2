@@ -1,10 +1,10 @@
 # Provider Capability Contract
 
 **Version:** 1.1 (validated; revised after independent review — see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md) §4b findings F11–F15 and §4c consistency corrections C1–C4)
-**Status:** Architecture-level contract. Not an interface implementation, not a schema file, not an SDK.
+**Status:** **Accepted.** The product owner accepted this contract's direction together with [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) (2026-09-13). It is Architecture authority. It is not an interface implementation, not a schema file, and not an SDK.
 **Lifecycle:** `PROJECT_PHASE=architecture`, `ALLOW_APP_STACK=0`. This document selects no transport, framework, database, auth implementation, hosting target, UI technology or provider.
-**Authority:** [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md) requires this contract to exist and be validated before any first-provider selection. [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) records its structural shape.
-**Validation:** see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md). Version 1.0 is the post-validation form; the revision log there records what earlier drafts got wrong.
+**Authority:** [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md) (accepted) requires this contract to exist and be validated before any first-provider selection. [ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md) (accepted) records its structural shape.
+**Validation:** see [PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md). v1.1 is the accepted, post-validation form; the revision log there records what earlier drafts got wrong.
 
 ---
 
@@ -107,7 +107,7 @@ Each failure mode has a **different remedy for the user**, so a single
 | :-- | :-- | :-- | :-- | :-- |
 | ✗ | – | – | **Not offered.** Hidden or shown as "not available on this provider". | [PRODUCT.md](../PRODUCT.md): Greenfield2 must not invent missing concepts for visual completeness. |
 | ✓ | not-entitled | – | **Explained as not available for this account**, with the provider's own path forward. | The capability exists; the user's remedy is with the provider, not with Greenfield2. |
-| ✓ | **unknown** | – | **Offered as unconfirmed.** See §3.2.1 — behaviour depends on whether the capability is read-only or mutating. | Greenfield2 must neither fabricate a denial nor silently assume entitlement. |
+| ✓ | **unknown** | ✓ | **Offered as unconfirmed.** See §3.2.1 — behaviour depends on whether the capability is read-only or mutating. | Greenfield2 must neither fabricate a denial nor silently assume entitlement. |
 | ✓ | entitled | ✗ | **Native-provider handoff.** "Open in provider". | [PRODUCT.md](../PRODUCT.md): native-provider handoff is preferred over guessed behavior. |
 | ✓ | entitled | ✓ | **Operable in Greenfield2**, with native handoff still offered. | The full case. |
 | ✓ | **unknown** | ✗ | **Native-provider handoff**, labelled unconfirmed. | L3 false decides the surface; L2 uncertainty must still be visible. |
@@ -821,12 +821,11 @@ the gap by accident:
 - **Which provider is first.** Explicitly deferred by
   [ADR-0005](../decisions/0005-provider-contract-before-provider-selection.md)
   until this contract is validated. The validation is complete
-  ([PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md)), but selection
-  does **not** become open until this contract's structural decision
+  ([PROVIDER_SHAPE_VALIDATION.md](PROVIDER_SHAPE_VALIDATION.md)) and the
+  structural decision
   ([ADR-0006](../decisions/0006-capability-manifest-and-three-layer-availability.md))
-  is **accepted**; ADR-0006 is currently `proposed`, so Issue #9's ordering
-  precondition is not yet fully discharged. Selection work belongs to the
-  existing
+  is **accepted**, so Issue #9's ordering precondition is discharged and
+  selection may proceed. It belongs to the existing
   **[Issue #8 — Architecture: evaluate first MVP provider](https://github.com/anthracite-labs/Greenfield2/issues/8)**
   using the Product Fit and Integration Legitimacy gates in
   [PRODUCT.md](../PRODUCT.md). **This document selects no provider**, and no

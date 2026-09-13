@@ -340,3 +340,60 @@ must be re-derived whenever the semantics it encodes change.
 merges: flip ADR-0006 to `accepted`, update the index row, move the contract row
 from ARCHITECTURE.md's "proposed, not yet in force" table into "decided", and
 only then treat Issue #8 as unblocked. Provider selection remains Issue #8's job.
+
+## 2026-09-13 — ADR-0006 accepted; provider capability contract in force
+
+**Context:** Issue #9, branch `arena/01a09a43-greenfield2`, PR #11. The product
+owner accepted ADR-0006 and the provider capability contract direction. This
+session performs the acceptance transition only, plus one table fix from
+independent review. Issue #8 was **not** started.
+
+**Did:** Propagated ADR-0006 from `proposed` to `accepted` everywhere its
+consequences were asserted: the ADR itself (status line plus a deciders line
+recording product-owner acceptance, 2026-09-13), the `docs/decisions/README.md`
+index row, `docs/ARCHITECTURE.md` (the "proposed, not yet in force" table was
+folded back into "decided"; the status paragraph and the open-decisions row now
+say selection is open *as a consequence of* the acceptance), `docs/ROADMAP.md`,
+`README.md`, contract §11 and the validation record §6. Removed the now-obsolete
+"mark accepted at merge" follow-up and replaced it with a real one: re-read the
+contract against live provider behaviour during first adapter implementation.
+Also fixed **C5**, the §3.1 row the reviewer flagged: it read
+`L1=✓, L2=unknown, L3=–`, which overlapped the separate `L3=✗` row and
+contradicted `resolution()`, where `unconfirmed` requires L3 to be true. It now
+reads `L3=✓`. Recorded C5 and the reversal of C4 in §4c.
+
+**Verified:** `bash scripts/verify.sh` → `RESULT: PASS — 16 passed, 0 failed,
+2 skipped`; `links` 169 resolve; `lifecycle` reports
+`phase=architecture, allow_app_stack=0` — **no lifecycle transition occurred**,
+which is the intended outcome: accepting a contract ADR is not an implementation
+transition. `bash scripts/selftest.sh` → `SELFTEST: PASS — 128 cases`.
+`git diff --stat -- config/project.env` is empty, confirming the lifecycle state
+is untouched. Confirmed by grep that ADR-0006 does **not** carry the literal
+`**Decision Type:** application-stack` marker (its one "application-stack"
+occurrence is prose in a follow-up), so `STACK_DECISION_ADR` stays unambiguous
+and `validate_stack_transition` cannot mistake it for the stack ADR. Both
+anti-leakage audits re-executed: audit A no matches (exit 1); audit B 4 matches,
+unchanged. §3.1 now has six rows mapping one-to-one onto the six `resolution()`
+outcomes, covering all twelve L1 × L2 × L3 combinations exactly once.
+
+**Learned:** Two things. First, an acceptance transition is mostly *tense
+maintenance*: the substantive edit was one status line, and the remaining work
+was finding every place that had been written in the conditional or the blocked
+voice — including a history note in §4b that still said "it is now `proposed`"
+in the present tense. A grep for the status marker is not enough; grep for
+"blocked", "not yet", "pending", and for the consequences. Second, the C4 lesson
+survives its own reversal. C4 said "do not describe a proposed ADR's
+consequences as in force"; accepting the ADR means those consequences are now
+correctly in force, and C4 was deleted from nothing — it stays in the log
+because the failure mode does not depend on which way the status points. A
+correction that is later overtaken by events should be marked superseded with
+the reason, not quietly rewritten, or the log stops being a record.
+
+**Next:** PR #11 is prepared for final merge and left **open** for final
+independent review; it was not merged. On merge, Issue #8 may proceed to
+evaluate first-provider candidates against the Product Fit and Integration
+Legitimacy gates — the validation set is evidence only and must not be inherited
+as the answer. Implementation remains locked: `ALLOW_APP_STACK=0`,
+`PROJECT_PHASE=architecture`, `STACK_DECISION_ADR` empty. The application stack
+still needs its own accepted ADR plus the separate reviewed lifecycle
+transition.
